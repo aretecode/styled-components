@@ -1,13 +1,13 @@
-import Input from '../postcss/input';
-
-import SafeParser from './safe-parser';
+// @flow
+import Input from '../postcss/input'
+import SafeParser from './safe-parser'
 
 export default function safeParse(css, opts) {
-    let input = new Input(css, opts);
+  const input = new Input(css, opts)
 
-    let parser = new SafeParser(input);
-    parser.tokenize();
-    parser.loop();
+  const parser = new SafeParser(input)
+  parser.tokenize()
+  parser.loop()
 
-    return parser.root;
+  return parser.root
 }

@@ -1,13 +1,14 @@
-import Declaration from './declaration';
-import Processor   from './processor';
-import stringify   from './stringify';
-import Comment     from './comment';
-import AtRule      from './at-rule';
-import vendor      from './vendor';
-import parse       from './parse';
-import list        from './list';
-import Rule        from './rule';
-import Root        from './root';
+// @flow
+import Declaration from './declaration'
+import Processor from './processor'
+import stringify from './stringify'
+import Comment from './comment'
+import AtRule from './at-rule'
+import vendor from './vendor'
+import parse from './parse'
+import list from './list'
+import Rule from './rule'
+import Root from './root'
 
 /**
  * Create a new {@link Processor} instance that will apply `plugins`
@@ -28,10 +29,10 @@ import Root        from './root';
  * @namespace postcss
  */
 function postcss(...plugins) {
-    if ( plugins.length === 1 && Array.isArray(plugins[0]) ) {
-        plugins = plugins[0];
-    }
-    return new Processor(plugins);
+  if (plugins.length === 1 && Array.isArray(plugins[0])) {
+    plugins = plugins[0]
+  }
+  return new Processor(plugins)
 }
 
 /**
@@ -107,27 +108,27 @@ function postcss(...plugins) {
  * @return {Plugin} PostCSS plugin
  */
 postcss.plugin = function plugin(name, initializer) {
-    let creator = function (...args) {
-        let transformer = initializer(...args);
-        transformer.postcssPlugin  = name;
-        transformer.postcssVersion = (new Processor()).version;
-        return transformer;
-    };
+  const creator = function(...args) {
+    const transformer = initializer(...args)
+    transformer.postcssPlugin = name
+    transformer.postcssVersion = new Processor().version
+    return transformer
+  }
 
-    let cache;
-    Object.defineProperty(creator, 'postcss', {
-        get() {
-            if ( !cache ) cache = creator();
-            return cache;
-        }
-    });
+  let cache
+  Object.defineProperty(creator, 'postcss', {
+    get() {
+      if (!cache) cache = creator()
+      return cache
+    },
+  })
 
-    creator.process = function (root, opts) {
-        return postcss([ creator(opts) ]).process(root, opts);
-    };
+  creator.process = function(root, opts) {
+    return postcss([creator(opts)]).process(root, opts)
+  }
 
-    return creator;
-};
+  return creator
+}
 
 /**
  * Default function to convert a node tree into a CSS string.
@@ -140,7 +141,7 @@ postcss.plugin = function plugin(name, initializer) {
  *
  * @function
  */
-postcss.stringify = stringify;
+postcss.stringify = stringify
 
 /**
  * Parses source css and returns a new {@link Root} node,
@@ -160,7 +161,7 @@ postcss.stringify = stringify;
  *
  * @function
  */
-postcss.parse = parse;
+postcss.parse = parse
 
 /**
  * @member {vendor} - Contains the {@link vendor} module.
@@ -168,7 +169,7 @@ postcss.parse = parse;
  * @example
  * postcss.vendor.unprefixed('-moz-tab') //=> ['tab']
  */
-postcss.vendor = vendor;
+postcss.vendor = vendor
 
 /**
  * @member {list} - Contains the {@link list} module.
@@ -176,7 +177,7 @@ postcss.vendor = vendor;
  * @example
  * postcss.list.space('5px calc(10% + 5px)') //=> ['5px', 'calc(10% + 5px)']
  */
-postcss.list = list;
+postcss.list = list
 
 /**
  * Creates a new {@link Comment} node.
@@ -188,7 +189,7 @@ postcss.list = list;
  * @example
  * postcss.comment({ text: 'test' })
  */
-postcss.comment = defaults => new Comment(defaults);
+postcss.comment = defaults => new Comment(defaults)
 
 /**
  * Creates a new {@link AtRule} node.
@@ -200,7 +201,7 @@ postcss.comment = defaults => new Comment(defaults);
  * @example
  * postcss.atRule({ name: 'charset' }).toString() //=> "@charset"
  */
-postcss.atRule = defaults => new AtRule(defaults);
+postcss.atRule = defaults => new AtRule(defaults)
 
 /**
  * Creates a new {@link Declaration} node.
@@ -212,7 +213,7 @@ postcss.atRule = defaults => new AtRule(defaults);
  * @example
  * postcss.decl({ prop: 'color', value: 'red' }).toString() //=> "color: red"
  */
-postcss.decl = defaults => new Declaration(defaults);
+postcss.decl = defaults => new Declaration(defaults)
 
 /**
  * Creates a new {@link Rule} node.
@@ -224,7 +225,7 @@ postcss.decl = defaults => new Declaration(defaults);
  * @example
  * postcss.rule({ selector: 'a' }).toString() //=> "a {\n}"
  */
-postcss.rule = defaults => new Rule(defaults);
+postcss.rule = defaults => new Rule(defaults)
 
 /**
  * Creates a new {@link Root} node.
@@ -236,6 +237,6 @@ postcss.rule = defaults => new Rule(defaults);
  * @example
  * postcss.root({ after: '\n' }).toString() //=> "\n"
  */
-postcss.root = defaults => new Root(defaults);
+postcss.root = defaults => new Root(defaults)
 
-export default postcss;
+export default postcss
