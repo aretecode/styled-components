@@ -38,6 +38,8 @@
   "exclude": [
     "*.test.ts",
     "**/*.test.ts",
+    "*.test.tsx",
+    "**/*.test.tsx",
     "dist",
     "**/__todo",
     "**/__unused"
