@@ -375,7 +375,7 @@ describe('theming', () => {
 
   // https://github.com/styled-components/styled-components/issues/596
   it('should hoist static properties when using withTheme', () => {
-    class MyComponent extends Component<*, *> {
+    class MyComponent extends Component<any, any> {
       static myStaticProperty: boolean = true
     }
 
@@ -385,7 +385,7 @@ describe('theming', () => {
   })
 
   it('should only pass the theme prop', () => {
-    class Comp extends Component<*, *> {
+    class Comp extends Component<any, any> {
       render() {
         return <div />
       }
@@ -406,7 +406,7 @@ describe('theming', () => {
   })
 
   it('should accept innerRef and pass it on as ref', () => {
-    class Comp extends Component<*, *> {
+    class Comp extends Component<any, any> {
       render() {
         return <div />
       }
