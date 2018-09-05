@@ -38,7 +38,7 @@
     ".eslintrc": true,
     ".eslintignore": true,
 
-    "jest": true,
+    // "jest": true,
     ".github": true,
     "no-parser": true,
     "test-utils": true,
@@ -76,10 +76,6 @@
   },
   "search.exclude": {
     "node_modules": true,
-    "**/__tests__": true,
-    "**/__tests__/*": true,
-    "**/*.test.ts": true,
-    "**/*.test.js": true,
     "**/*snapshots__": true
   },
   "files.watcherExclude": {
