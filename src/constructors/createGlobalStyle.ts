@@ -6,8 +6,8 @@ import StyleSheet from '../models/StyleSheet'
 import { StyleSheetConsumer } from '../models/StyleSheetManager'
 import StyledError from '../utils/error'
 import determineTheme from '../utils/determineTheme'
-import { ThemeConsumer, type Theme } from '../models/ThemeProvider'
-import type { CSSConstructor, Interpolation, Stringifier } from '../types'
+import { ThemeConsumer, Theme } from '../models/ThemeProvider'
+import { CSSConstructor, Interpolation, Stringifier } from '../types'
 import hashStr from '../vendor/glamor/hash'
 
 export default (

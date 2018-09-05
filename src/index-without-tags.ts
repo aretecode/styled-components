@@ -11,7 +11,7 @@ import _StyledComponent from './models/StyledComponent'
 import _ComponentStyle from './models/ComponentStyle'
 import _constructWithOptions from './constructors/constructWithOptions'
 
-import type { Target } from './types'
+import { Target } from './types'
 
 export * from './base'
 

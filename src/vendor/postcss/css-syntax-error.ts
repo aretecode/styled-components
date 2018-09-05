@@ -1,4 +1,3 @@
-// @flow
 import supportsColor from 'supports-color'
 
 import terminalHighlight from './terminal-highlight'
@@ -137,12 +136,12 @@ class CssSyntaxError {
      * @example
      * error.message //=> 'a.css:1:1: Unclosed block'
      */
-    this.message = this.plugin ? `${this.plugin}: ` : ''
+    this.message = this.plugin ? this.plugin + ': ' : ''
     this.message += this.file ? this.file : '<css input>'
     if (typeof this.line !== 'undefined') {
-      this.message += `:${this.line}:${this.column}`
+      this.message += ':' + this.line + ':' + this.column
     }
-    this.message += `: ${this.reason}`
+    this.message += ': ' + this.reason
   }
 
   /**
@@ -173,25 +172,25 @@ class CssSyntaxError {
     if (typeof color === 'undefined') color = supportsColor
     if (color) css = terminalHighlight(css)
 
-    const lines = css.split(/\r?\n/)
-    const start = Math.max(this.line - 3, 0)
-    const end = Math.min(this.line + 2, lines.length)
+    let lines = css.split(/\r?\n/)
+    let start = Math.max(this.line - 3, 0)
+    let end = Math.min(this.line + 2, lines.length)
 
-    const maxWidth = String(end).length
+    let maxWidth = String(end).length
 
     return lines
       .slice(start, end)
       .map((line, index) => {
-        const number = start + 1 + index
-        const padded = ` ${number}`.slice(-maxWidth)
-        const gutter = ` ${padded} | `
+        let number = start + 1 + index
+        let padded = (' ' + number).slice(-maxWidth)
+        let gutter = ' ' + padded + ' | '
         if (number === this.line) {
-          const spacing =
+          let spacing =
             gutter.replace(/\d/g, ' ') +
             line.slice(0, this.column - 1).replace(/[^\t]/g, ' ')
-          return `>${gutter}${line}\n ${spacing}^`
+          return '>' + gutter + line + '\n ' + spacing + '^'
         } else {
-          return ` ${gutter}${line}`
+          return ' ' + gutter + line
         }
       })
       .join('\n')
@@ -210,13 +209,13 @@ class CssSyntaxError {
   toString() {
     let code = this.showSourceCode()
     if (code) {
-      code = `\n\n${code}\n`
+      code = '\n\n' + code + '\n'
     }
-    return `${this.name}: ${this.message}${code}`
+    return this.name + ': ' + this.message + code
   }
 
   get generated() {
-    warnOnce('CssSyntaxError#generated is depreacted. Use input instead.')
+    warnOnce('CssSyntaxError#generated is deprecated. Use input instead.')
     return this.input
   }
 

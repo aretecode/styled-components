@@ -1,5 +1,5 @@
 // @flow
-import type { RuleSet, Stringifier } from '../types'
+import { RuleSet, Stringifier } from '../types'
 import flatten from '../utils/flatten'
 import isStaticRules from '../utils/isStaticRules'
 import StyleSheet from './StyleSheet'

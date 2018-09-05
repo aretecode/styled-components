@@ -1,6 +1,6 @@
 // @flow
 import isStyledComponent from './isStyledComponent'
-import type { RuleSet } from '../types'
+import { RuleSet } from '../types'
 
 export default function isStaticRules(rules: RuleSet, attrs?: Object): boolean {
   for (let i = 0; i < rules.length; i += 1) {
