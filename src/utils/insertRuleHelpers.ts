@@ -7,14 +7,18 @@ import StyledError from '../utils/error'
 /* retrieve a sheet for a given style tag */
 export const sheetForTag = (tag: HTMLStyleElement): CSSStyleSheet => {
   // $FlowFixMe
-  if (tag.sheet) return tag.sheet
+  if (tag.sheet) {
+    return tag.sheet
+  }
 
   /* Firefox quirk requires us to step through all stylesheets to find one owned by the given tag */
   const size = document.styleSheets.length
   for (let i = 0; i < size; i += 1) {
     const sheet = document.styleSheets[i]
     // $FlowFixMe
-    if (sheet.ownerNode === tag) return sheet
+    if (sheet.ownerNode === tag) {
+      return sheet
+    }
   }
 
   /* we should always be able to find a tag */

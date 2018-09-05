@@ -1,8 +1,6 @@
 // @flow
 import hyphenate from 'fbjs/lib/hyphenateStyleName'
-// import isPlainObject from 'is-plain-object'
-import { isPlainObject, isFunction } from 'exotic'
-//
+import isPlainObject from 'is-plain-object'
 import { Interpolation } from '../types'
 
 export const objToCss = (obj: Object, prevKey?: string): string => {
