@@ -1,0 +1,143 @@
+{
+  "files.exclude": {
+    "**/dist": false,
+    "**/node_modules": false,
+    "**/.tmp": true,
+    "**/docs": true,
+    "**/.gitignore": true,
+    "**/.tmp/": true,
+    "**/.prettierignore": true,
+    "**/.prettierrc": true,
+    "**/.editorconfig": true,
+    "**/yarn.lock": true,
+
+    // "node_modules": true,
+    // "**/jest.config.js": true,
+    // "**/tsconfig.test.json": true,
+    // "**/tsconfig.*.json": true,
+    // "**/tslint.json": true,
+    // "**/tsconfig.json": true,
+
+    ".babelrc": true,
+    ".babelrc.js": true,
+    ".flowconfig": true,
+    "dangerfile.js": true,
+    ".jest.native.json": true,
+    ".jest.integration.json": true,
+    ".jest.primitives.json": true,
+    ".jest.web.json": true,
+    ".npmignore": true,
+    "LICENSE": true,
+    "CORE_TEAM.md": true,
+    "CHANGELOG.md": true,
+    "CONTRIBUTING.md": true,
+    "CODE_OF_CONDUCT.md": true,
+    "tslint.json": true,
+    ".gitattributes": true,
+    "appveyor.yml": true,
+    ".eslintrc": true,
+    ".eslintignore": true,
+
+    // "jest": true,
+    ".github": true,
+    "no-parser": true,
+    "test-utils": true,
+    "primitives": true,
+    "flow-typed": true,
+    "example": true,
+    "native": true,
+    "sandbox": true,
+    "scripts": true,
+    "benchmarks": true,
+    "integration-test": true,
+
+    "**/.travis.yml": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    ".snyk": true,
+    "*.log": true,
+    "**/*.js.snap": true,
+    "__snapshots__/*.js.snap": true,
+    "__snapshots__/*story*.js.snap": true,
+    ".git": true,
+    ".svn": true,
+    ".hg": true,
+    "CVS": true,
+    ".DS_Store": true,
+    ".happypack": true,
+    "circle.yml": true,
+    "fuse.js": true,
+    "stylelint.config.js": true,
+    ".stylintignore.js": true,
+    "public": true
+  },
+  "search.exclude": {
+    "node_modules": true,
+    "**/*snapshots__": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true
+  },
+
+
+
+  "workbench.settings.openDefaultSettings": false,
+  "editor.lightbulb.enabled": false,
+  // ==============================
+  // === DO NOT EDIT BELOW HERE ===
+  // ==============================
+
+
+  "tslint.jsEnable": true,
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false
+  },
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false
+  },
+
+  "files.insertFinalNewline": true,
+  "files.eol": "\n",
+  "editor.rulers": [80],
+  "editor.tabSize": 2,
+
+  "prettier.arrowParens": "avoid",
+  "prettier.bracketSpacing": false,
+  "prettier.eslintIntegration": true,
+  "prettier.parser": "babylon",
+  "prettier.ignorePath": ".prettierignore",
+  "prettier.printWidth": 100,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.useTabs": false,
+  "prettier.proseWrap": "preserve",
+  "prettier.stylelintIntegration": true,
+  "prettier.semi": false,
+
+  "prettier.jsxBracketSameLine": true,
+  "json.format.enable": false,
+  "editor.formatOnSave": true,
+  "javascript.format.enable": false,
+  "editor.formatOnPaste": false,
+
+  "javascript.validate.enable": false,
+  "javascript.implicitProjectConfig.checkJs": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "emmet.showSuggestionsAsSnippets": true,
+  "jsDocCompletion.enabled": true,
+  "editor.snippetSuggestions": "top",
+  "editor.parameterHints": true
+}
