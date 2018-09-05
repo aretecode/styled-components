@@ -62,7 +62,6 @@
   },
   "homepage": "https://styled-components.com",
   "dependencies": {
-    "exotic": "latest",
     "@emotion/is-prop-valid": "^0.6.5",
     "css-to-react-native": "^2.0.3",
     "fbjs": "^0.8.16",
