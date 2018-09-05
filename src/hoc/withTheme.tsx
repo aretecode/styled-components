@@ -2,12 +2,13 @@
 /* globals ReactClass */
 
 import React from 'react'
+import { ComponentType, ClassicComponentClass } from 'react'
 import hoistStatics from 'hoist-non-react-statics'
 import { ThemeConsumer, Theme } from '../models/ThemeProvider'
 import getComponentName from '../utils/getComponentName'
 import determineTheme from '../utils/determineTheme'
 
-export default (Component: ComponentType<any>) => {
+export default (Component: ComponentType<any> | ClassicComponentClass<any>) => {
   const WithTheme = React.forwardRef((props, ref) => (
     <ThemeConsumer>
       {(theme?: Theme) => {

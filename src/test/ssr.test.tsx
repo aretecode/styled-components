@@ -1,3 +1,4 @@
+// @flow
 /**
  * @jest-environment node
  */
@@ -55,10 +56,12 @@ describe('ssr', () => {
 
     const sheet = new ServerStyleSheet()
     const html = renderToString(
-      sheet.collectStyles(<React.Fragment>
-        <Component />
-        <Heading>Hello SSR!</Heading>
-      </React.Fragment>)
+      sheet.collectStyles(
+        <React.Fragment>
+          <Component />
+          <Heading>Hello SSR!</Heading>
+        </React.Fragment>
+      )
     )
     const css = sheet.getStyleTags()
 
@@ -67,8 +70,12 @@ describe('ssr', () => {
   })
 
   it('should not spill ServerStyleSheets into each other', () => {
-    const A = styled.h1`color: red;`
-    const B = styled.h1`color: green;`
+    const A = styled.h1`
+      color: red;
+    `
+    const B = styled.h1`
+      color: green;
+    `
 
     const sheetA = new ServerStyleSheet()
     renderToString(sheetA.collectStyles(<A />))
@@ -97,10 +104,12 @@ describe('ssr', () => {
 
     const sheet = new ServerStyleSheet()
     const html = renderToString(
-      sheet.collectStyles(<React.Fragment>
-        <Component />
-        <Heading>Hello SSR!</Heading>
-      </React.Fragment>)
+      sheet.collectStyles(
+        <React.Fragment>
+          <Component />
+          <Heading>Hello SSR!</Heading>
+        </React.Fragment>
+      )
     )
     const css = sheet.getStyleTags()
 
@@ -144,19 +153,23 @@ describe('ssr', () => {
 
     const sheetOne = new ServerStyleSheet()
     const htmlOne = renderToString(
-      sheetOne.collectStyles(<React.Fragment>
-        <Component />
-        <PageOne>Camera One!</PageOne>
-      </React.Fragment>)
+      sheetOne.collectStyles(
+        <React.Fragment>
+          <Component />
+          <PageOne>Camera One!</PageOne>
+        </React.Fragment>
+      )
     )
     const cssOne = sheetOne.getStyleTags()
 
     const sheetTwo = new ServerStyleSheet()
     const htmlTwo = renderToString(
-      sheetTwo.collectStyles(<React.Fragment>
-        <Component />
-        <PageTwo>Camera Two!</PageTwo>
-      </React.Fragment>)
+      sheetTwo.collectStyles(
+        <React.Fragment>
+          <Component />
+          <PageTwo>Camera Two!</PageTwo>
+        </React.Fragment>
+      )
     )
     const cssTwo = sheetTwo.getStyleTags()
 
@@ -176,10 +189,12 @@ describe('ssr', () => {
 
     const sheet = new ServerStyleSheet()
     const html = renderToString(
-      sheet.collectStyles(<React.Fragment>
-        <Component />
-        <Header animation={keyframes`0% { opacity: 0; }`} />
-      </React.Fragment>)
+      sheet.collectStyles(
+        <React.Fragment>
+          <Component />
+          <Header animation={keyframes`0% { opacity: 0; }`} />
+        </React.Fragment>
+      )
     )
     const css = sheet.getStyleTags()
 
@@ -197,10 +212,12 @@ describe('ssr', () => {
 
     const sheet = new ServerStyleSheet()
     const html = renderToString(
-      sheet.collectStyles(<React.Fragment>
-        <Component />
-        <Heading>Hello SSR!</Heading>
-      </React.Fragment>)
+      sheet.collectStyles(
+        <React.Fragment>
+          <Component />
+          <Heading>Hello SSR!</Heading>
+        </React.Fragment>
+      )
     )
     const elements = sheet.getStyleElement()
 
@@ -226,10 +243,12 @@ describe('ssr', () => {
 
     const sheet = new ServerStyleSheet()
     const html = renderToString(
-      sheet.collectStyles(<React.Fragment>
-        <Heading>Hello SSR!</Heading>
-        <Component />
-      </React.Fragment>)
+      sheet.collectStyles(
+        <React.Fragment>
+          <Heading>Hello SSR!</Heading>
+          <Component />
+        </React.Fragment>
+      )
     )
     const elements = sheet.getStyleElement()
 
@@ -246,10 +265,12 @@ describe('ssr', () => {
     `
 
     const sheet = new ServerStyleSheet()
-    const jsx = sheet.collectStyles(<React.Fragment>
-      <Component />
-      <Heading>Hello SSR!</Heading>
-    </React.Fragment>)
+    const jsx = sheet.collectStyles(
+      <React.Fragment>
+        <Component />
+        <Heading>Hello SSR!</Heading>
+      </React.Fragment>
+    )
     const stream = sheet.interleaveWithNodeStream(renderToNodeStream(jsx))
 
     return new Promise((resolve, reject) => {
@@ -282,9 +303,9 @@ describe('ssr', () => {
     const stream = sheet.interleaveWithNodeStream(renderToNodeStream(jsx))
 
     return new Promise((resolve, reject) => {
-      stream.on('data', function noop() { })
+      stream.on('data', () => {})
 
-      stream.on('error', (err) => {
+      stream.on('error', err => {
         expect(err).toMatchSnapshot()
         expect(sheet.closed).toBe(true)
         resolve()
