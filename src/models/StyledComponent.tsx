@@ -207,7 +207,8 @@ class BaseStyledComponent extends Component<any> {
   }
 }
 
-export default (ComponentStyle: Function) => {
+// @todo ComponentStyle import?
+export default (ComponentStyle: { new (...args: any[]): any }) => {
   function createStyledComponent(
     target: Target,
     options: Object,

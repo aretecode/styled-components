@@ -61,15 +61,13 @@ export const stripWhitespace = (str: string) =>
     .replace(/([;\{\}])/g, '$1  ')
     .replace(/\s+/g, ' ')
 
-
-export const getCSS = (scope: Document | HTMLElement) => {
-  return Array.from(scope.querySelectorAll('style'))
+export const getCSS = (scope: Document | HTMLElement) =>
+  Array.from(scope.querySelectorAll('style'))
     .map(tag => tag.innerHTML)
     .join('\n')
     .replace(/ {/g, '{')
     .replace(/:\s+/g, ':')
     .replace(/:\s+;/g, ':;')
-}
 
 export const expectCSSMatches = (
   _expectation: string,
