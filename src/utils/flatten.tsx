@@ -1,9 +1,9 @@
 // @flow
 import hyphenate from 'fbjs/lib/hyphenateStyleName'
-import React from 'react'
-import isPlainObject from './isPlainObject'
-import StyledError from './error'
-import type { Interpolation } from '../types'
+// import isPlainObject from 'is-plain-object'
+import { isPlainObject, isFunction } from 'exotic'
+//
+import { Interpolation } from '../types'
 
 export const objToCss = (obj: Object, prevKey?: string): string => {
   const css = Object.keys(obj)
@@ -14,7 +14,9 @@ export const objToCss = (obj: Object, prevKey?: string): string => {
       )
     })
     .map(key => {
-      if (isPlainObject(obj[key])) return objToCss(obj[key], key)
+      if (isPlainObject(obj[key])) {
+        return objToCss(obj[key], key)
+      }
       return `${hyphenate(key)}: ${obj[key]};`
     })
     .join(' ')
@@ -27,54 +29,50 @@ export const objToCss = (obj: Object, prevKey?: string): string => {
 
 const flatten = (
   chunks: Array<Interpolation>,
-  executionContext: ?Object
-): Array<Interpolation> =>
-  chunks.reduce((ruleSet: Array<Interpolation>, chunk: ?Interpolation) => {
-    /* Remove falsey values */
-    if (
-      chunk === undefined ||
-      chunk === null ||
-      chunk === false ||
-      chunk === ''
-    ) {
-      return ruleSet
-    }
+  executionContext?: Object
+): Array<Interpolation> => {
+  console.assert(Array.isArray(chunks) === true, 'chunks to flatten = array')
 
-    /* Flatten ruleSet */
-    if (Array.isArray(chunk)) {
-      ruleSet.push(...flatten(chunk, executionContext))
-      return ruleSet
-    }
+  return chunks.reduce(
+    (ruleSet: Array<Interpolation>, chunk?: Interpolation) => {
+      /* Remove falsey values */
+      if (
+        chunk === undefined ||
+        chunk === null ||
+        chunk === false ||
+        chunk === ''
+      ) {
+        return ruleSet
+      }
+      /* Flatten ruleSet */
+      if (Array.isArray(chunk)) {
+        return [...ruleSet, ...flatten(chunk, executionContext)]
+      }
 
-    /* Handle other components */
-    if (chunk.hasOwnProperty('styledComponentId')) {
-      // $FlowFixMe not sure how to make this pass
-      ruleSet.push(`.${chunk.styledComponentId}`)
-      return ruleSet
-    }
+      /* Handle other components */
+      if (chunk.hasOwnProperty('styledComponentId')) {
+        // $FlowFixMe not sure how to make this pass
+        return [...ruleSet, `.${chunk.styledComponentId}`]
+      }
 
-    /* Either execute or defer the function */
-    if (typeof chunk === 'function') {
-      if (executionContext) {
-        const nextChunk = chunk(executionContext)
-        /* Throw if a React Element was given styles */
-        if (React.isValidElement(nextChunk)) {
-          const elementName = chunk.displayName || chunk.name
-          throw new StyledError(11, elementName)
-        }
-        ruleSet.push(...flatten([nextChunk], executionContext))
-      } else ruleSet.push(chunk)
+      /* Either execute or defer the function */
+      // if (isFunction(chunk)) {
+      if (typeof chunk === 'function') {
+        return executionContext
+          ? ruleSet.concat(
+              ...flatten([chunk(executionContext)], executionContext)
+            )
+          : ruleSet.concat(chunk)
+      }
 
-      return ruleSet
-    }
-
-    /* Handle objects */
-    ruleSet.push(
-      // $FlowFixMe have to add %checks somehow to isPlainObject
-      isPlainObject(chunk) ? objToCss(chunk) : chunk.toString()
-    )
-
-    return ruleSet
-  }, [])
+      /* Handle objects */
+      return ruleSet.concat(
+        // $FlowFixMe have to add %checks somehow to isPlainObject
+        isPlainObject(chunk) ? objToCss(chunk) : chunk.toString()
+      )
+    },
+    []
+  )
+}
 
 export default flatten

@@ -8,10 +8,10 @@
 export type Names = { [string]: { [string]: boolean } }
 
 /* adds a new ID:name pairing to a names dictionary */
-export const addNameForId = (names: Names, id: string, name: ?string) => {
+export const addNameForId = (names: Names, id: string, name: string) => {
   if (name) {
     // eslint-disable-next-line no-param-reassign
-    const namesForId = names[id] || (names[id] = (Object.create(null): Object))
+    const namesForId = names[id] || (names[id] = Object.create(null))
     namesForId[name] = true
   }
 }
@@ -19,7 +19,7 @@ export const addNameForId = (names: Names, id: string, name: ?string) => {
 /* resets an ID entirely by overwriting it in the dictionary */
 export const resetIdNames = (names: Names, id: string) => {
   // eslint-disable-next-line no-param-reassign
-  names[id] = (Object.create(null): Object)
+  names[id] = Object.create(null)
 }
 
 /* factory for a names dictionary checking the existance of an ID:name pairing */
@@ -38,7 +38,7 @@ export const stringifyNames = (names: Names) => {
 
 /* clones the nested names dictionary */
 export const cloneNames = (names: Names): Names => {
-  const clone = (Object.create(null): Object)
+  const clone = Object.create(null)
   // eslint-disable-next-line guard-for-in
   for (const id in names) {
     clone[id] = { ...names[id] }

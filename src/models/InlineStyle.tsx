@@ -1,11 +1,10 @@
 // @flow
 /* eslint-disable import/no-unresolved */
 import transformDeclPairs from 'css-to-react-native'
-
-import hashStr from '../vendor/glamor/hash'
-import type { RuleSet, StyleSheet } from '../types'
+import hashStr from '../../vendor/glamor/hash'
+import { RuleSet, StyleSheet } from '../types'
 import flatten from '../utils/flatten'
-import parse from '../vendor/postcss-safe-parser/parse'
+import parse from '../../vendor/postcss-safe-parser/parse'
 
 let generated = {}
 
@@ -25,6 +24,8 @@ export default (styleSheet: StyleSheet) => {
     }
 
     generateStyleObject(executionContext: Object) {
+      console.warn('this file has issues')
+
       const flatCSS = flatten(this.rules, executionContext).join('')
       const hash = hashStr(flatCSS)
       if (!generated[hash]) {

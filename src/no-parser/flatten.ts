@@ -1,7 +1,12 @@
-// @flow
-import type { Interpolation } from '../types'
+/* eslint-disable max-lines */
+/* eslint-disable max-statements */
+/* eslint-disable no-negated-condition */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/prop-types */
+/* eslint-disable complexity */
+import { isPlainObject, isObj } from 'exotic'
+import { Interpolation } from '../types'
 import _flatten, { objToCss } from '../utils/flatten'
-import isPlainObject from '../utils/isPlainObject'
 
 const isRuleSet = (interpolation: Interpolation): boolean =>
   !!(
@@ -14,7 +19,7 @@ const isRuleSet = (interpolation: Interpolation): boolean =>
 
 const flatten = (
   chunks: Array<Interpolation>,
-  executionContext: ?Object
+  executionContext?: Object
 ): Array<Interpolation> => {
   /* Fall back to old flattener for non-rule-set chunks */
   if (!isRuleSet(chunks)) {
@@ -24,7 +29,7 @@ const flatten = (
   return chunks.reduce(
     (
       ruleSet: Array<Interpolation>,
-      chunk: ?Interpolation
+      chunk: Interpolation | any
     ): Array<Interpolation> => {
       if (!Array.isArray(chunk)) {
         return ruleSet
@@ -35,7 +40,7 @@ const flatten = (
       const newChunk = chunk.reduce(
         (
           rules: Array<Interpolation>,
-          rule: ?Interpolation
+          rule: Interpolation | any
         ): Array<Interpolation> => {
           /* Remove falsey values */
           if (
@@ -82,14 +87,15 @@ const flatten = (
 
           /* Handle other components */
           if (
-            typeof rule === 'object' &&
+            isObj(rule) &&
+            // @todo hasOwnProp
             rule.hasOwnProperty('styledComponentId')
           ) {
             return [...rules, `.${rule.styledComponentId}`]
           }
 
           /* Convert object to css string */
-          if (typeof rule === 'object' && isPlainObject(rule)) {
+          if (isObj(rule) && isPlainObject(rule)) {
             return [...rules, objToCss(rule)]
           }
 

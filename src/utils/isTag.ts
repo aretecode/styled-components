@@ -1,5 +1,5 @@
 // @flow
-import type { Target } from '../types'
+import { Target } from '../types'
 
 export default function isTag(target: Target) /* : %checks */ {
   return typeof target === 'string'

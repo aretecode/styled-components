@@ -19,19 +19,19 @@ import ServerStyleSheet from './ServerStyleSheet'
 import StyleSheet from './StyleSheet'
 import { CHANNEL_NEXT, contextShape } from './ThemeProvider'
 
-import type { Theme } from './ThemeProvider'
-import type { RuleSet, Target } from '../types'
+import { Theme } from './ThemeProvider'
+import { RuleSet, Target } from '../types'
 
 // HACK for generating all static styles without needing to allocate
 // an empty execution context every single time...
-const STATIC_EXECUTION_CONTEXT = {}
+export const STATIC_EXECUTION_CONTEXT = {}
 
-type BaseState = {
-  theme?: ?Theme,
-  generatedClassName?: string,
+export type BaseState = {
+  theme?: Theme
+  generatedClassName?: string
 }
 
-const modifiedContextShape = {
+export const modifiedContextShape = {
   ...contextShape,
   [CONTEXT_KEY]: PropTypes.oneOfType([
     PropTypes.instanceOf(StyleSheet),
@@ -39,10 +39,10 @@ const modifiedContextShape = {
   ]),
 }
 
-const identifiers = {}
+export const identifiers = {}
 
 /* We depend on components having unique IDs */
-const generateId = (
+export const generateId = (
   ComponentStyle: Function,
   _displayName: string,
   parentComponentId: string
@@ -77,7 +77,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // $FlowFixMe
-class BaseStyledComponent extends Component<*, BaseState> {
+export class BaseStyledComponent extends Component<any, BaseState> {
   static target: Target
   static styledComponentId: string
   static attrs: Object
@@ -188,7 +188,7 @@ class BaseStyledComponent extends Component<*, BaseState> {
     }
   }
 
-  componentWillReceiveProps(nextProps: { theme?: Theme, [key: string]: any }) {
+  componentWillReceiveProps(nextProps: { theme?: Theme; [key: string]: any }) {
     // If this is a statically-styled component, we don't need to listen to
     // props changes to update styles
     const { componentStyle } = this.constructor

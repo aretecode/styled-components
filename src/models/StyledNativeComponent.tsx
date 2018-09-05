@@ -10,12 +10,13 @@ import hasInInheritanceChain from '../utils/hasInInheritanceChain'
 import once from '../utils/once'
 import { CHANNEL_NEXT, contextShape } from './ThemeProvider'
 
-import type { Theme } from './ThemeProvider'
-import type { RuleSet, Target } from '../types'
+import { Theme } from './ThemeProvider'
+import { RuleSet, Target } from '../types'
 
 type State = {
-  theme?: ?Theme,
-  generatedStyles: any,
+  // ?Theme
+  theme?: Theme
+  generatedStyles: any
 }
 
 let warnExtendDeprecated = () => {}
@@ -29,13 +30,13 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // $FlowFixMe
-class BaseStyledNativeComponent extends Component<*, State> {
+class BaseStyledNativeComponent extends Component<any, State> {
   static target: Target
   static styledComponentId: string
   static attrs: Object
   static defaultProps: Object
   static inlineStyle: Object
-  root: ?Object
+  root: Object
 
   attrs = {}
   state = {
@@ -104,7 +105,7 @@ class BaseStyledNativeComponent extends Component<*, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: { theme?: Theme, [key: string]: any }) {
+  componentWillReceiveProps(nextProps: { theme?: Theme; [key: string]: any }) {
     this.setState(prevState => {
       const theme = determineTheme(
         nextProps,
@@ -183,7 +184,13 @@ class BaseStyledNativeComponent extends Component<*, State> {
   }
 }
 
-export default (constructWithOptions: Function, InlineStyle: Function) => {
+/**
+ * @todo hoist class
+ */
+const defaultExport = (
+  constructWithOptions: Function,
+  InlineStyle: Function
+) => {
   const createStyledNativeComponent = (
     target: Target,
     options: Object,
@@ -265,3 +272,5 @@ export default (constructWithOptions: Function, InlineStyle: Function) => {
 
   return createStyledNativeComponent
 }
+
+export default defaultExport

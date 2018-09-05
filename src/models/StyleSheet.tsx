@@ -6,7 +6,9 @@ import {
   SC_ATTR,
   SC_STREAM_ATTR,
 } from '../constants'
-import { makeTag, makeRehydrationTag, type Tag } from './StyleTags'
+import { makeTag, makeRehydrationTag } from './StyleTags'
+// type
+import { Tag } from './StyleTags'
 import extractComps from '../utils/extractCompsFromCSS'
 
 const SPLIT_REGEX = /\s+/
@@ -30,13 +32,13 @@ export default class StyleSheet {
   forceServer: boolean
   target: ?HTMLElement
   /* a map from ids to tags */
-  tagMap: { [string]: Tag<any> }
+  tagMap: { [key: string]: Tag<any> }
   /* deferred rules for a given id */
-  deferred: { [string]: string[] | void }
+  deferred: { [key: string]: string[] | void }
   /* this is used for not reinjecting rules via hasNameForId() */
-  rehydratedNames: { [string]: boolean }
+  rehydratedNames: { [key: string]: boolean }
   /* when rules for an id are removed using remove() we have to ignore rehydratedNames for it */
-  ignoreRehydratedNames: { [string]: boolean }
+  ignoreRehydratedNames: { [key: string]: boolean }
   /* a list of tags belonging to this StyleSheet */
   tags: Tag<any>[]
   /* a tag for import rules */
@@ -47,7 +49,7 @@ export default class StyleSheet {
   clones: StyleSheet[]
 
   constructor(
-    target: ?HTMLElement = IS_BROWSER ? document.head : null,
+    target: HTMLElement = IS_BROWSER ? document.head : null,
     forceServer?: boolean = false
   ) {
     sheetRunningId += 1
@@ -86,7 +88,7 @@ export default class StyleSheet {
 
     for (let i = 0; i < nodesSize; i += 1) {
       // $FlowFixMe: We can trust that all elements in this query are style elements
-      const el = (nodes[i]: HTMLStyleElement)
+      const el = (nodes[i] as HTMLStyleElement)
 
       /* check if style tag is a streamed tag */
       if (!isStreamed) isStreamed = !!el.getAttribute(SC_STREAM_ATTR)
@@ -143,7 +145,7 @@ export default class StyleSheet {
   }
 
   /* reset the internal "master" instance */
-  static reset(forceServer?: boolean = false) {
+  static reset(forceServer: boolean = false) {
     master = new StyleSheet(undefined, forceServer).rehydrate()
   }
 
@@ -180,7 +182,7 @@ export default class StyleSheet {
     this.sealed = true
   }
 
-  makeTag(tag: ?Tag<any>): Tag<any> {
+  makeTag(tag: Tag<any>): Tag<any> {
     const lastEl = tag ? tag.styleTag : null
     const insertBefore = false
 
@@ -309,7 +311,7 @@ export default class StyleSheet {
     return this.tags.map(tag => tag.toHTML()).join('')
   }
 
-  toReactElements(): Array<*> {
+  toReactElements(): Array<any> {
     const { id } = this
 
     return this.tags.map((tag, i) => {

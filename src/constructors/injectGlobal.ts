@@ -1,7 +1,7 @@
 // @flow
-import hashStr from '../vendor/glamor/hash'
+import hashStr from '../../vendor/glamor/hash'
 import StyleSheet from '../models/StyleSheet'
-import type { Interpolation, Stringifier } from '../types'
+import { Interpolation, Stringifier } from '../types'
 
 type InjectGlobalFn = (
   strings: Array<string>,

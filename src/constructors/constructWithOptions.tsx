@@ -1,8 +1,13 @@
+/**
+ * @todo
+ * 1. types on fn
+ * 2. some additional enhancements can be added here
+ */
 // @flow
 import { isValidElementType } from 'react-is'
 import StyledError from '../utils/error'
 import { EMPTY_OBJECT } from '../utils/empties'
-import type { Target } from '../types'
+import { Target } from '../types'
 
 export default (css: Function) => {
   const constructWithOptions = (

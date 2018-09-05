@@ -8,7 +8,7 @@ import StyledError from '../utils/error'
 import StyleSheet from './StyleSheet'
 import StyleSheetManager from './StyleSheetManager'
 
-declare var __SERVER__: boolean
+// declare var __SERVER__: boolean
 
 export default class ServerStyleSheet {
   instance: StyleSheet
@@ -52,7 +52,14 @@ export default class ServerStyleSheet {
   }
 
   interleaveWithNodeStream(readableStream: stream.Readable) {
-    if (!__SERVER__ || IS_BROWSER) {
+    // @note moved here for test env
+    const __SERVER__: boolean =
+      typeof global === 'object' &&
+      (typeof (global as any).__SERVER__ !== 'undefined' ||
+        typeof window !== 'object')
+
+    // if (!__SERVER__ || IS_BROWSER) {
+    if (!__SERVER__) {
       throw new StyledError(3)
     }
 

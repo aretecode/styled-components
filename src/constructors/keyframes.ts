@@ -1,8 +1,9 @@
 // @flow
-import hashStr from '../vendor/glamor/hash'
-import type { Interpolation, NameGenerator, Stringifier } from '../types'
+import hashStr from '../../vendor/glamor/hash'
+import { Interpolation, NameGenerator, Stringifier } from '../types'
 import StyleSheet from '../models/StyleSheet'
 
+// @todo - dedupe
 const replaceWhitespace = (str: string): string => str.replace(/\s|\\n/g, '')
 
 type KeyframesFn = (

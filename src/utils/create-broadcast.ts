@@ -1,22 +1,23 @@
 // @flow
 /**
+ * @todo use the one in _forks ?
  * Creates a broadcast that can be listened to, i.e. simple event emitter
- *
  * @see https://github.com/ReactTraining/react-broadcast
  */
 
 export type Broadcast = {
-  publish: (value: mixed) => void,
-  subscribe: (listener: (currentValue: mixed) => void) => number,
-  unsubscribe: number => void,
+  // $FlowFixme @todo
+  publish: (value: any) => void
+  subscribe: (listener: (currentValue: any) => void) => number
+  unsubscribe(x: number): void
 }
 
-const createBroadcast = (initialState: mixed): Broadcast => {
+const createBroadcast = (initialState: any): Broadcast => {
   const listeners = {}
   let id = 0
   let state = initialState
 
-  function publish(nextState: mixed) {
+  function publish(nextState: any) {
     state = nextState
 
     // eslint-disable-next-line guard-for-in, no-restricted-syntax
@@ -46,4 +47,5 @@ const createBroadcast = (initialState: mixed): Broadcast => {
   return { publish, subscribe, unsubscribe }
 }
 
+export { createBroadcast }
 export default createBroadcast

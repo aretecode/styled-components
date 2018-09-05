@@ -6,13 +6,16 @@ export type ExtractedComp = {
   cssFromDOM: string,
 }
 
-export default (maybeCSS: ?string): Array<ExtractedComp> => {
-  const css = `${maybeCSS || ''}` // Definitely a string, and a clone
+export default (maybeCSS: string): Array<ExtractedComp> => {
+  const css = `${maybeCSS || ''}`
   const existingComponents = []
   css.replace(SC_COMPONENT_ID, (match, componentId, matchIndex) => {
     existingComponents.push({ componentId, matchIndex })
     return match
   })
+  // @todo
+  // return existingComponents.map((existing, i) => {
+  //   const { componentId, matchIndex } = existing
   return existingComponents.map(({ componentId, matchIndex }, i) => {
     const nextComp = existingComponents[i + 1]
     const cssFromDOM = nextComp

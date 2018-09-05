@@ -1,14 +1,15 @@
 // @flow
 import Stylis from 'stylis'
 import _insertRulePlugin from 'stylis-rule-sheet'
-import type { Interpolation } from '../types'
+import transpileStyles from '../../../transpileStyles'
+import { Interpolation } from '../types'
 
 const COMMENT_REGEX = /^\s*\/\/.*$/gm
 
 // NOTE: This stylis instance is only used to split rules from SSR'd style tags
 const stylisSplitter = new Stylis({
   global: false,
-  cascade: true,
+  cascade: false,
   keyframe: false,
   prefix: false,
   compress: false,
@@ -21,7 +22,8 @@ const stylis = new Stylis({
   keyframe: false,
   prefix: true,
   compress: false,
-  semicolon: false, // NOTE: This means "autocomplete missing semicolons"
+  // NOTE: This means "autocomplete missing semicolons"
+  semicolon: false,
 })
 
 // Wrap `insertRulePlugin to build a list of rules,
@@ -47,8 +49,8 @@ stylisSplitter.use([parseRulesPlugin, returnRulesPlugin])
 
 const stringifyRules = (
   rules: Array<Interpolation>,
-  selector: ?string,
-  prefix: ?string
+  selector: string,
+  prefix: string
 ): Array<string> => {
   const flatCSS = rules.join('').replace(COMMENT_REGEX, '') // replace JS comments
 

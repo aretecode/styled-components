@@ -6,12 +6,15 @@ import ServerStyleSheet from './ServerStyleSheet'
 import { CONTEXT_KEY } from '../constants'
 import StyledError from '../utils/error'
 
-type Props = {
-  sheet?: StyleSheet | null,
-  target?: HTMLElement | null,
+export type StyleSheetManagerProps = {
+  sheet?: StyleSheet | null
+  target?: HTMLElement | null
 }
 
-export default class StyleSheetManager extends Component<Props, void> {
+export default class StyleSheetManager extends Component<
+  StyleSheetManagerProps,
+  void
+> {
   static childContextTypes = {
     [CONTEXT_KEY]: PropTypes.oneOfType([
       PropTypes.instanceOf(StyleSheet),
@@ -50,6 +53,6 @@ export default class StyleSheetManager extends Component<Props, void> {
     // Flow v0.43.1 will report an error accessing the `children` property,
     // but v0.47.0 will not. It is necessary to use a type cast instead of
     // a "fixme" comment to satisfy both Flow versions.
-    return React.Children.only((this.props: any).children)
+    return React.Children.only((this.props as any).children)
   }
 }

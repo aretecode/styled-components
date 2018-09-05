@@ -1,7 +1,7 @@
 // @flow
-import hashStr from '../vendor/glamor/hash'
+import hashStr from '../../vendor/glamor/hash'
 
-import type { RuleSet, NameGenerator, Flattener, Stringifier } from '../types'
+import { RuleSet, NameGenerator, Flattener, Stringifier } from '../types'
 import StyleSheet from './StyleSheet'
 import { IS_BROWSER } from '../constants'
 import isStyledComponent from '../utils/isStyledComponent'
@@ -43,7 +43,7 @@ const isHMREnabled =
  ComponentStyle is all the CSS-specific stuff, not
  the React-specific stuff.
  */
-export default (
+const defaultExport = (
   nameGenerator: NameGenerator,
   flatten: Flattener,
   stringifyRules: Stringifier
@@ -55,7 +55,7 @@ export default (
     rules: RuleSet
     componentId: string
     isStatic: boolean
-    lastClassName: ?string
+    lastClassName: string | any
 
     constructor(rules: RuleSet, attrs?: Object, componentId: string) {
       this.rules = rules
@@ -77,11 +77,12 @@ export default (
      * */
     generateAndInjectStyles(executionContext: Object, styleSheet: StyleSheet) {
       const { isStatic, componentId, lastClassName } = this
+
       if (
         areStylesCacheable &&
         isStatic &&
         lastClassName !== undefined &&
-        styleSheet.hasNameForId(componentId, ((lastClassName: any): string))
+        styleSheet.hasNameForId(componentId, lastClassName as string)
       ) {
         return lastClassName
       }
@@ -108,3 +109,5 @@ export default (
 
   return ComponentStyle
 }
+
+export default defaultExport

@@ -3,7 +3,7 @@ import interleave from '../utils/interleave'
 import isPlainObject from '../utils/isPlainObject'
 import { EMPTY_ARRAY } from '../utils/empties'
 import flatten from '../utils/flatten'
-import type { Interpolation, RuleSet, Styles } from '../types'
+import { Interpolation, RuleSet, Styles } from '../types'
 
 export default (
   styles: Styles,

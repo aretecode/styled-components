@@ -1,4 +1,3 @@
-// @flow
 type Props = {
   theme?: any,
 }

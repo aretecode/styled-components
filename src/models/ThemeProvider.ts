@@ -1,31 +1,33 @@
 // @flow
-import React, { Component, type Element } from 'react'
+/* eslint-disable max-lines */
+/* eslint-disable max-statements */
+/* eslint-disable no-negated-condition */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/prop-types */
+/* globals React$Element */
+import React, { Component } from 'react'
+import { ReactNode } from 'react'
 import PropTypes from 'prop-types'
-import createBroadcast from '../utils/create-broadcast'
-import type { Broadcast } from '../utils/create-broadcast'
-import StyledError from '../utils/error'
+import { isPlainObject, isFunction } from 'exotic'
+import { createBroadcast, Broadcast } from '../utils/create-broadcast'
 import once from '../utils/once'
+import StyledError from '../utils/error'
 
 // NOTE: DO NOT CHANGE, changing this is a semver major change!
 export const CHANNEL = '__styled-components__'
 export const CHANNEL_NEXT = `${CHANNEL}next__`
-
+export type PassedThemeType = (outerTheme: Theme) => void | Theme
 export const CONTEXT_CHANNEL_SHAPE = PropTypes.shape({
   getTheme: PropTypes.func,
   subscribe: PropTypes.func,
   unsubscribe: PropTypes.func,
 })
 
-export const contextShape = {
-  [CHANNEL]: PropTypes.func, // legacy
-  [CHANNEL_NEXT]: CONTEXT_CHANNEL_SHAPE,
+export type Theme = { [key: string]: any }
+export type ThemeProviderProps = {
+  children?: ReactNode
+  theme: Theme | ((outerTheme: Theme) => void)
 }
-
-export type Theme = { [key: string]: mixed }
-type ThemeProviderProps = {|
-  children?: Element<any>,
-  theme: Theme | ((outerTheme: Theme) => void),
-|}
 
 let warnChannelDeprecated
 if (process.env.NODE_ENV !== 'production') {
@@ -37,21 +39,23 @@ if (process.env.NODE_ENV !== 'production') {
   })
 }
 
-const isFunction = test => typeof test === 'function'
-
 /**
  * Provide a theme to an entire react component tree via context and event listeners (have to do
  * both context and event emitter as pure components block context updates)
  */
-export default class ThemeProvider extends Component<ThemeProviderProps, void> {
-  broadcast: Broadcast
+class ThemeProvider extends Component<ThemeProviderProps, void> {
   getTheme: (theme?: Theme | ((outerTheme: Theme) => void)) => Theme
   outerTheme: Theme
-  props: ThemeProviderProps
-  unsubscribeToOuterId: number = -1
   unsubscribeToOuterId: string
+  props: ThemeProviderProps
+  broadcast: Broadcast
+  unsubscribeToOuterId: number = -1
 
-  static childContextTypes = contextShape
+  static childContextTypes = {
+    // legacy
+    [CHANNEL]: PropTypes.func,
+    [CHANNEL_NEXT]: CONTEXT_CHANNEL_SHAPE,
+  }
   static contextTypes = {
     [CHANNEL_NEXT]: CONTEXT_CHANNEL_SHAPE,
   }
@@ -111,21 +115,18 @@ export default class ThemeProvider extends Component<ThemeProviderProps, void> {
   }
 
   // Get the theme from the props, supporting both (outerTheme) => {} as well as object notation
-  getTheme(passedTheme: (outerTheme: Theme) => void | Theme) {
+  getTheme(passedTheme: PassedThemeType) {
     const theme = passedTheme || this.props.theme
 
     if (isFunction(theme)) {
       const mergedTheme = theme(this.outerTheme)
-
       if (
-        process.env.NODE_ENV !== 'production' &&
-        (mergedTheme === null ||
-          Array.isArray(mergedTheme) ||
-          typeof mergedTheme !== 'object')
+        (process.env.NODE_ENV !== 'production' && mergedTheme === null) ||
+        Array.isArray(mergedTheme) ||
+        typeof mergedTheme !== 'object'
       ) {
         throw new StyledError(7)
       }
-
       return mergedTheme
     }
 
@@ -133,7 +134,8 @@ export default class ThemeProvider extends Component<ThemeProviderProps, void> {
       throw new StyledError(8)
     }
 
-    return { ...this.outerTheme, ...(theme: Object) }
+    // (theme: Object)
+    return { ...this.outerTheme, ...theme }
   }
 
   publish(theme: Theme | ((outerTheme: Theme) => void)) {
@@ -144,7 +146,8 @@ export default class ThemeProvider extends Component<ThemeProviderProps, void> {
     if (!this.props.children) {
       return null
     }
-
     return React.Children.only(this.props.children)
   }
 }
+
+export default ThemeProvider

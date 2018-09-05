@@ -12,7 +12,7 @@ import ThemeProvider from '../models/ThemeProvider'
 import withTheme from '../hoc/withTheme'
 import isStyledComponent from '../utils/isStyledComponent'
 
-import type { Target } from '../types'
+import { Target } from '../types'
 
 const constructWithOptions = _constructWithOptions(css)
 const InlineStyle = _InlineStyle(reactPrimitives.StyleSheet)

@@ -1,5 +1,5 @@
 // @flow
-import type { Target } from '../types'
+import { Target } from '../types'
 import domElements from '../utils/domElements'
 
 export default (styledComponent: Function, constructWithOptions: Function) => {

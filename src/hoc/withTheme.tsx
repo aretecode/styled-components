@@ -1,31 +1,40 @@
 // @flow
-import React, { type ComponentType } from 'react'
+/* globals ReactClass */
+
+import React from 'react'
+// import { ReactClass } from 'react'
+import PropTypes from 'prop-types'
 import hoistStatics from 'hoist-non-react-statics'
-import { CHANNEL_NEXT, contextShape } from '../models/ThemeProvider'
-import { EMPTY_OBJECT } from '../utils/empties'
-import getComponentName from '../utils/getComponentName'
+import {
+  CHANNEL,
+  CHANNEL_NEXT,
+  CONTEXT_CHANNEL_SHAPE,
+} from '../models/ThemeProvider'
 import _isStyledComponent from '../utils/isStyledComponent'
 import determineTheme from '../utils/determineTheme'
 
-export default (Component: ComponentType<any>) => {
+const wrapWithTheme = (Component: ReactClass<any>) => {
+  const componentName = Component.displayName || Component.name || 'Component'
   const isStatelessFunctionalComponent =
     typeof Component === 'function' &&
-    // $FlowFixMe TODO: flow for prototype
     !(Component.prototype && 'isReactComponent' in Component.prototype)
 
   // NOTE: We can't pass a ref to a stateless functional component
   const shouldSetInnerRef =
     _isStyledComponent(Component) || isStatelessFunctionalComponent
 
-  class WithTheme extends React.Component<*, *> {
-    static contextTypes = contextShape
-    static displayName = `WithTheme(${getComponentName(Component)})`
-    static defaultProps: Object
+  class WithTheme extends React.Component {
+    static displayName = `WithTheme(${componentName})`
 
     // NOTE: This is so that isStyledComponent passes for the innerRef unwrapping
     static styledComponentId = 'withTheme'
 
-    state: { theme?: ?Object } = EMPTY_OBJECT
+    static contextTypes = {
+      [CHANNEL]: PropTypes.func,
+      [CHANNEL_NEXT]: CONTEXT_CHANNEL_SHAPE,
+    }
+
+    // state: { theme?: Object } = {}
     unsubscribeId: number = -1
 
     componentWillMount() {
@@ -53,8 +62,8 @@ export default (Component: ComponentType<any>) => {
     }
 
     componentWillReceiveProps(nextProps: {
-      theme?: ?Object,
-      [key: string]: any,
+      theme?: Object
+      [key: string]: any
     }) {
       const { defaultProps } = this.constructor
       this.setState(oldState => {
@@ -81,9 +90,11 @@ export default (Component: ComponentType<any>) => {
         delete props.innerRef
       }
 
-      return React.createElement(Component, props)
+      return <Component {...props} />
     }
   }
 
   return hoistStatics(WithTheme, Component)
 }
+
+export default wrapWithTheme
