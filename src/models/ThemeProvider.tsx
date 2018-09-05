@@ -7,8 +7,8 @@ import StyledError from '../utils/error'
 export type Theme = { [key: string]: any }
 
 type Props = {
-  children?: Element<any>,
-  theme: Theme | ((outerTheme: Theme) => void),
+  children?: Element<any>
+  theme: Theme | ((outerTheme: Theme) => void)
 }
 
 const isFunction = test => typeof test === 'function'
@@ -16,17 +16,17 @@ const isFunction = test => typeof test === 'function'
 const ThemeContext = createContext()
 
 export const ThemeConsumer = ThemeContext.Consumer
+export type ThemeProviderGetContext = (
+  theme: Theme | ((outerTheme: Theme) => void),
+  outerTheme?: Theme
+) => Theme
 
 /**
  * Provide a theme to an entire react component tree via context
  */
 export default class ThemeProvider extends Component<Props> {
-  getContext: (
-    theme: Theme | ((outerTheme: Theme) => void),
-    outerTheme?: Theme
-  ) => Theme
-
-  renderInner: Function
+  // getContext: ThemeProviderGetContext
+  // renderInner: Function
 
   constructor(props: Props) {
     super(props)
@@ -72,12 +72,10 @@ export default class ThemeProvider extends Component<Props> {
       throw new StyledError(8)
     }
 
-    return { ...outerTheme, ...theme as object }
+    return { ...outerTheme, ...(theme as object) }
   }
 
   getContext(theme: (outerTheme: Theme) => void, outerTheme?: Theme) {
     return this.getTheme(theme, outerTheme)
   }
 }
-
-export default ThemeProvider

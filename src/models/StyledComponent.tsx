@@ -113,16 +113,17 @@ class BaseStyledComponent extends Component<any> {
       )
     }
 
-    const propsForElement: Object = { ...this.attrs }
+    const propsForElement = { ...this.attrs }
 
     let key
     for (key in this.props) {
       if (key === 'forwardedClass' || key === 'as') continue
       else if (process.env.NODE_ENV !== 'production' && key === 'innerRef') {
         warnInnerRef()
-      } else if (key === 'forwardedRef') propsForElement.ref = this.props[key]
-      // Don't pass through non HTML tags through to HTML elements
-      else if (!isTargetTag || validAttr(key)) {
+      } else if (key === 'forwardedRef') {
+        propsForElement.ref = this.props[key]
+      } else if (!isTargetTag || validAttr(key)) {
+        // Don't pass through non HTML tags through to HTML elements
         propsForElement[key] =
           key === 'style' && key in this.attrs
             ? { ...this.attrs[key], ...this.props[key] }

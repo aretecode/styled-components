@@ -12,7 +12,7 @@ import { makeTag, makeRehydrationTag } from './StyleTags'
 import { Tag } from './StyleTags'
 import extractComps from '../utils/extractCompsFromCSS'
 
-declare var __VERSION__: string
+let __VERSION__: string
 
 const SPLIT_REGEX = /\s+/
 
@@ -33,7 +33,7 @@ export default class StyleSheet {
   id: number
   sealed: boolean
   forceServer: boolean
-  target: ?HTMLElement
+  target: HTMLElement
   /* a map from ids to tags */
   tagMap: { [key: string]: Tag<any> }
   /* deferred rules for a given id */
@@ -53,7 +53,7 @@ export default class StyleSheet {
 
   constructor(
     target: HTMLElement = IS_BROWSER ? document.head : null,
-    forceServer?: boolean = false
+    forceServer: boolean = false
   ) {
     sheetRunningId += 1
     this.id = sheetRunningId
@@ -92,7 +92,7 @@ export default class StyleSheet {
 
     for (let i = 0; i < nodesSize; i += 1) {
       // $FlowFixMe: We can trust that all elements in this query are style elements
-      const el = (nodes[i] as HTMLStyleElement)
+      const el = nodes[i] as HTMLStyleElement
 
       /* check if style tag is a streamed tag */
       if (!isStreamed) isStreamed = !!el.getAttribute(SC_STREAM_ATTR)

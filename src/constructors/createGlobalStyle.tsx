@@ -26,7 +26,7 @@ export default (
     const style = new GlobalStyle(rules, id)
     let count = 0
 
-    class GlobalStyleComponent extends React.Component<*, *> {
+    class GlobalStyleComponent extends React.Component<any, any> {
       static defaultProps: Object
       instance: number
       styleSheet: Object

@@ -1,5 +1,6 @@
+// @flow
 type Props = {
-  theme?: any,
+  theme?: any
 }
 
 export default (props: Props, fallbackTheme: any, defaultProps: any) => {

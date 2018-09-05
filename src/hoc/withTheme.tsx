@@ -35,5 +35,3 @@ export default (Component: ComponentType<any>) => {
 
   return WithTheme
 }
-
-export default wrapWithTheme

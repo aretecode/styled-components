@@ -69,6 +69,10 @@ const ComponentStyle = _ComponentStyle(
 
 /* Instantiate exported singletons */
 const keyframes = _keyframes(generateAlphabeticName, stringifyRules, css)
+
+/**
+ * @todo @@fixme
+ */
 const createGlobalStyle = _createGlobalStyle(
   ComponentStyle,
   stringifyRules,
@@ -80,6 +84,7 @@ export * from './secretInternals'
 export {
   css,
   keyframes,
+  // _createGlobalStyle,
   createGlobalStyle,
   isStyledComponent,
   ThemeProvider,
