@@ -1,10 +1,10 @@
 // @flow
 /* eslint-disable import/no-unresolved */
 import transformDeclPairs from 'css-to-react-native'
-import hashStr from '../../vendor/glamor/hash'
+import hashStr from '../vendor/glamor/hash'
+import parse from '../vendor/postcss-safe-parser/parse'
 import { RuleSet, StyleSheet } from '../types'
 import flatten from '../utils/flatten'
-import parse from '../../vendor/postcss-safe-parser/parse'
 
 let generated = {}
 

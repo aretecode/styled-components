@@ -1,5 +1,5 @@
 // @flow
-import hashStr from '../../vendor/glamor/hash'
+import hashStr from '../vendor/glamor/hash'
 import { Interpolation, NameGenerator, Stringifier } from '../types'
 import StyleSheet from '../models/StyleSheet'
 
