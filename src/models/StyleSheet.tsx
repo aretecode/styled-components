@@ -12,7 +12,7 @@ import { makeTag, makeRehydrationTag } from './StyleTags'
 import { Tag } from './StyleTags'
 import extractComps from '../utils/extractCompsFromCSS'
 
-let __VERSION__: string
+// let __VERSION__: string
 
 const SPLIT_REGEX = /\s+/
 

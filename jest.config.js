@@ -6,7 +6,9 @@ function resolveTsConfig() {
 
 const config = {
   globals: {
-    "__DEV__": true
+    "__DEV__": true,
+    // "__VERSION__": "4.0.0-beta.1",
+    "__VERSION__": "JEST_MOCK_VERSION",
   },
   testURL: "http://localhost",
   clearMocks: true,

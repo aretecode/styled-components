@@ -36,7 +36,7 @@ import {
   deleteRules,
 } from '../utils/insertRuleHelpers'
 
-var __VERSION__: string
+// var __VERSION__: string
 
 export interface Tag<T> {
   // $FlowFixMe: Doesn't seem to accept any combination w/ HTMLStyleElement for some reason
