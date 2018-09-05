@@ -1,52 +1,37 @@
 // @flow
 
+import validAttr from '@emotion/is-prop-valid'
 import hoist from 'hoist-non-react-statics'
-import PropTypes from 'prop-types'
-import { Component, createElement } from 'react'
-import { CONTEXT_KEY } from '../constants'
+import React, { Component, createElement } from 'react'
 import createWarnTooManyClasses from '../utils/createWarnTooManyClasses'
 import determineTheme from '../utils/determineTheme'
-import { EMPTY_OBJECT } from '../utils/empties'
 import escape from '../utils/escape'
+
 import generateDisplayName from '../utils/generateDisplayName'
 import getComponentName from '../utils/getComponentName'
-import isStyledComponent from '../utils/isStyledComponent'
-import isTag from '../utils/isTag'
-import validAttr from '../utils/validAttr'
-import hasInInheritanceChain from '../utils/hasInInheritanceChain'
 import once from '../utils/once'
-import ServerStyleSheet from './ServerStyleSheet'
+import isTag from '../utils/isTag'
+import isDerivedReactComponent from '../utils/isDerivedReactComponent'
+import isStyledComponent from '../utils/isStyledComponent'
 import StyleSheet from './StyleSheet'
-import { CHANNEL_NEXT, contextShape } from './ThemeProvider'
+import { ThemeConsumer, Theme } from './ThemeProvider'
+import { StyleSheetConsumer } from './StyleSheetManager'
+import { EMPTY_OBJECT } from '../utils/empties'
 
-import { Theme } from './ThemeProvider'
 import { RuleSet, Target } from '../types'
 
 // HACK for generating all static styles without needing to allocate
 // an empty execution context every single time...
 export const STATIC_EXECUTION_CONTEXT = {}
 
-export type BaseState = {
-  theme?: Theme
-  generatedClassName?: string
-}
-
-export const modifiedContextShape = {
-  ...contextShape,
-  [CONTEXT_KEY]: PropTypes.oneOfType([
-    PropTypes.instanceOf(StyleSheet),
-    PropTypes.instanceOf(ServerStyleSheet),
-  ]),
-}
-
-export const identifiers = {}
+const identifiers = {}
 
 /* We depend on components having unique IDs */
-export const generateId = (
+function generateId(
   ComponentStyle: Function,
   _displayName: string,
   parentComponentId: string
-) => {
+) {
   const displayName =
     typeof _displayName !== 'string' ? 'sc' : escape(_displayName)
 
@@ -61,67 +46,134 @@ export const generateId = (
     displayName + nr
   )}`
 
-  return parentComponentId !== undefined
-    ? `${parentComponentId}-${componentId}`
-    : componentId
+  return parentComponentId ? `${parentComponentId}-${componentId}` : componentId
 }
 
-let warnExtendDeprecated = () => {}
-if (process.env.NODE_ENV !== 'production') {
-  warnExtendDeprecated = once(() => {
-    // eslint-disable-next-line no-console
-    console.warn(
-      'Warning: The "extend" API will be removed in the upcoming v4.0 release. Use styled(StyledComponent) instead. You can find more information here: https://github.com/styled-components/styled-components/issues/1546'
-    )
-  })
-}
+const warnInnerRef = once(() =>
+  // eslint-disable-next-line no-console
+  console.warn(
+    'The "innerRef" API has been removed in styled-components v4 in favor of React 16 ref forwarding, use "ref" instead like a typical component.'
+  )
+)
 
 // $FlowFixMe
-export class BaseStyledComponent extends Component<any, BaseState> {
-  static target: Target
-  static styledComponentId: string
-  static attrs: Object
-  static componentStyle: Object
-  static defaultProps: Object
-  static warnTooManyClasses: Function
+class BaseStyledComponent extends Component<any> {
+  // renderOuter: Function
+  // renderInner: Function
+  styleSheet: StyleSheet
 
   attrs = {}
-  state = {
-    theme: null,
-    generatedClassName: '',
-  }
-  unsubscribeId: number = -1
 
-  unsubscribeFromContext() {
-    if (this.unsubscribeId !== -1) {
-      this.context[CHANNEL_NEXT].unsubscribe(this.unsubscribeId)
+  constructor() {
+    super()
+    this.renderOuter = this.renderOuter.bind(this)
+    this.renderInner = this.renderInner.bind(this)
+  }
+
+  render() {
+    return <StyleSheetConsumer>{this.renderOuter}</StyleSheetConsumer>
+  }
+
+  renderOuter(styleSheet?: StyleSheet) {
+    this.styleSheet = styleSheet
+
+    return <ThemeConsumer>{this.renderInner}</ThemeConsumer>
+  }
+
+  renderInner(theme?: Theme) {
+    const {
+      componentStyle,
+      defaultProps,
+      styledComponentId,
+      target,
+    } = this.props.forwardedClass
+
+    const isTargetTag = isTag(this.props.as || target)
+
+    let generatedClassName
+    if (componentStyle.isStatic) {
+      generatedClassName = this.generateAndInjectStyles(
+        STATIC_EXECUTION_CONTEXT,
+        this.props,
+        this.styleSheet
+      )
+    } else if (theme !== undefined) {
+      const determinedTheme = determineTheme(this.props, theme, defaultProps)
+
+      generatedClassName = this.generateAndInjectStyles(
+        determinedTheme,
+        this.props,
+        this.styleSheet
+      )
+    } else {
+      generatedClassName = this.generateAndInjectStyles(
+        this.props.theme || EMPTY_OBJECT,
+        this.props,
+        this.styleSheet
+      )
     }
+
+    const propsForElement: Object = { ...this.attrs }
+
+    let key
+    for (key in this.props) {
+      if (key === 'forwardedClass' || key === 'as') continue
+      else if (process.env.NODE_ENV !== 'production' && key === 'innerRef') {
+        warnInnerRef()
+      } else if (key === 'forwardedRef') propsForElement.ref = this.props[key]
+      // Don't pass through non HTML tags through to HTML elements
+      else if (!isTargetTag || validAttr(key)) {
+        propsForElement[key] =
+          key === 'style' && key in this.attrs
+            ? { ...this.attrs[key], ...this.props[key] }
+            : this.props[key]
+      }
+    }
+
+    propsForElement.className = [
+      this.props.className,
+      styledComponentId,
+      this.attrs.className,
+      generatedClassName,
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    return createElement(this.props.as || target, propsForElement)
   }
 
-  buildExecutionContext(theme: any, props: any) {
-    const { attrs } = this.constructor
+  buildExecutionContext(theme: any, props: any, attrs: any) {
     const context = { ...props, theme }
-    if (attrs === undefined) {
-      return context
-    }
 
-    this.attrs = Object.keys(attrs).reduce((acc, key) => {
-      const attr = attrs[key]
+    if (attrs === undefined) return context
 
-      // eslint-disable-next-line no-param-reassign
-      acc[key] =
-        typeof attr === 'function' && !hasInInheritanceChain(attr, Component)
+    this.attrs = {}
+
+    let attr
+    let key
+
+    /* eslint-disable guard-for-in */
+    for (key in attrs) {
+      attr = attrs[key]
+
+      this.attrs[key] =
+        typeof attr === 'function' &&
+        !isDerivedReactComponent(attr) &&
+        !isStyledComponent(attr)
           ? attr(context)
           : attr
-      return acc
-    }, {})
+    }
+    /* eslint-enable */
 
     return { ...context, ...this.attrs }
   }
 
-  generateAndInjectStyles(theme: any, props: any) {
-    const { attrs, componentStyle, warnTooManyClasses } = this.constructor
-    const styleSheet = this.context[CONTEXT_KEY] || StyleSheet.master
+  generateAndInjectStyles(
+    theme: any,
+    props: any,
+    styleSheet: StyleSheet = StyleSheet.master
+  ) {
+    const { attrs, componentStyle, warnTooManyClasses } = props.forwardedClass
 
     // statically styled-components don't need to build an execution context object,
     // and shouldn't be increasing the number of class names
@@ -131,7 +183,12 @@ export class BaseStyledComponent extends Component<any, BaseState> {
         styleSheet
       )
     } else {
-      const executionContext = this.buildExecutionContext(theme, props)
+      const executionContext = this.buildExecutionContext(
+        theme,
+        props,
+        props.forwardedClass.attrs
+      )
+
       const className = componentStyle.generateAndInjectStyles(
         executionContext,
         styleSheet
@@ -147,130 +204,18 @@ export class BaseStyledComponent extends Component<any, BaseState> {
       return className
     }
   }
-
-  componentWillMount() {
-    const { componentStyle } = this.constructor
-    const styledContext = this.context[CHANNEL_NEXT]
-
-    // If this is a statically-styled component, we don't need to the theme
-    // to generate or build styles.
-    if (componentStyle.isStatic) {
-      const generatedClassName = this.generateAndInjectStyles(
-        STATIC_EXECUTION_CONTEXT,
-        this.props
-      )
-      this.setState({ generatedClassName })
-      // If there is a theme in the context, subscribe to the event emitter. This
-      // is necessary due to pure components blocking context updates, this circumvents
-      // that by updating when an event is emitted
-    } else if (styledContext !== undefined) {
-      const { subscribe } = styledContext
-      this.unsubscribeId = subscribe(nextTheme => {
-        // This will be called once immediately
-        const theme = determineTheme(
-          this.props,
-          nextTheme,
-          this.constructor.defaultProps
-        )
-
-        const generatedClassName = this.generateAndInjectStyles(
-          theme,
-          this.props
-        )
-
-        this.setState({ theme, generatedClassName })
-      })
-    } else {
-      // eslint-disable-next-line react/prop-types
-      const theme = this.props.theme || EMPTY_OBJECT
-      const generatedClassName = this.generateAndInjectStyles(theme, this.props)
-      this.setState({ theme, generatedClassName })
-    }
-  }
-
-  componentWillReceiveProps(nextProps: { theme?: Theme; [key: string]: any }) {
-    // If this is a statically-styled component, we don't need to listen to
-    // props changes to update styles
-    const { componentStyle } = this.constructor
-    if (componentStyle.isStatic) {
-      return
-    }
-
-    this.setState(prevState => {
-      const theme = determineTheme(
-        nextProps,
-        prevState.theme,
-        this.constructor.defaultProps
-      )
-      const generatedClassName = this.generateAndInjectStyles(theme, nextProps)
-
-      return { theme, generatedClassName }
-    })
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeFromContext()
-  }
-
-  render() {
-    // eslint-disable-next-line react/prop-types
-    const { innerRef } = this.props
-    const { generatedClassName } = this.state
-    const { styledComponentId, target } = this.constructor
-
-    const isTargetTag = isTag(target)
-
-    const className = [
-      // eslint-disable-next-line react/prop-types
-      this.props.className,
-      styledComponentId,
-      this.attrs.className,
-      generatedClassName,
-    ]
-      .filter(Boolean)
-      .join(' ')
-
-    const baseProps: Object = {
-      ...this.attrs,
-      className,
-    }
-
-    if (isStyledComponent(target)) {
-      baseProps.innerRef = innerRef
-    } else {
-      baseProps.ref = innerRef
-    }
-
-    const propsForElement = baseProps
-    let key
-
-    for (key in this.props) {
-      // Don't pass through non HTML tags through to HTML elements
-      // always omit innerRef
-      if (
-        key !== 'innerRef' &&
-        key !== 'className' &&
-        (!isTargetTag || validAttr(key))
-      ) {
-        propsForElement[key] =
-          key === 'style' && key in this.attrs
-            ? { ...this.attrs[key], ...this.props[key] }
-            : this.props[key]
-      }
-    }
-
-    return createElement(target, propsForElement)
-  }
 }
 
-export default (ComponentStyle: Function, constructWithOptions: Function) => {
-  const createStyledComponent = (
+export default (ComponentStyle: Function) => {
+  function createStyledComponent(
     target: Target,
     options: Object,
     rules: RuleSet
-  ) => {
+  ) {
+    const isTargetStyledComp = isStyledComponent(target)
+    const isClass = !isTag(target)
+
     const {
-      isClass = !isTag(target),
       displayName = generateDisplayName(target),
       componentId = generateId(
         ComponentStyle,
@@ -278,7 +223,6 @@ export default (ComponentStyle: Function, constructWithOptions: Function) => {
         options.parentComponentId
       ),
       ParentComponent = BaseStyledComponent,
-      rules: extendingRules,
       attrs,
     } = options
 
@@ -287,64 +231,67 @@ export default (ComponentStyle: Function, constructWithOptions: Function) => {
         ? `${escape(options.displayName)}-${options.componentId}`
         : options.componentId || componentId
 
+    // fold the underlying StyledComponent attrs up (implicit extend)
+    const finalAttrs =
+      // $FlowFixMe
+      isTargetStyledComp && target.attrs ? { ...target.attrs, ...attrs } : attrs
+
     const componentStyle = new ComponentStyle(
-      extendingRules === undefined ? rules : extendingRules.concat(rules),
-      attrs,
+      isTargetStyledComp
+        ? // fold the underlying StyledComponent rules up (implicit extend)
+          // $FlowFixMe
+          target.componentStyle.rules.concat(rules)
+        : rules,
+      finalAttrs,
       styledComponentId
     )
 
-    class StyledComponent extends ParentComponent {
-      static attrs = attrs
-      static componentStyle = componentStyle
-      static contextTypes = modifiedContextShape
-      static displayName = displayName
-      static styledComponentId = styledComponentId
-      static target = target
+    /**
+     * forwardRef creates a new interim component, which we'll take advantage of
+     * instead of extending ParentComponent to create _another_ interim class
+     */
+    const StyledComponent = React.forwardRef((props, ref) => (
+      <ParentComponent
+        {...props}
+        forwardedClass={StyledComponent}
+        forwardedRef={ref}
+      />
+    ))
 
-      static withComponent(tag: Target) {
-        const { componentId: previousComponentId, ...optionsToCopy } = options
+    // $FlowFixMe
+    StyledComponent.attrs = finalAttrs
+    // $FlowFixMe
+    StyledComponent.componentStyle = componentStyle
+    StyledComponent.displayName = displayName
+    // $FlowFixMe
+    StyledComponent.styledComponentId = styledComponentId
 
-        const newComponentId =
-          previousComponentId &&
-          `${previousComponentId}-${
-            isTag(tag) ? tag : escape(getComponentName(tag))
-          }`
+    // fold the underlying StyledComponent target up since we folded the styles
+    // $FlowFixMe
+    StyledComponent.target = isTargetStyledComp ? target.target : target
 
-        const newOptions = {
-          ...optionsToCopy,
-          componentId: newComponentId,
-          ParentComponent: StyledComponent,
-        }
+    // $FlowFixMe
+    StyledComponent.withComponent = function withComponent(tag: Target) {
+      const { componentId: previousComponentId, ...optionsToCopy } = options
 
-        return createStyledComponent(tag, newOptions, rules)
+      const newComponentId =
+        previousComponentId &&
+        `${previousComponentId}-${
+          isTag(tag) ? tag : escape(getComponentName(tag))
+        }`
+
+      const newOptions = {
+        ...optionsToCopy,
+        attrs: finalAttrs,
+        componentId: newComponentId,
+        ParentComponent,
       }
 
-      static get extend() {
-        const {
-          rules: rulesFromOptions,
-          componentId: parentComponentId,
-          ...optionsToCopy
-        } = options
-
-        const newRules =
-          rulesFromOptions === undefined
-            ? rules
-            : rulesFromOptions.concat(rules)
-
-        const newOptions = {
-          ...optionsToCopy,
-          rules: newRules,
-          parentComponentId,
-          ParentComponent: StyledComponent,
-        }
-
-        warnExtendDeprecated()
-
-        return constructWithOptions(createStyledComponent, target, newOptions)
-      }
+      return createStyledComponent(tag, newOptions, rules)
     }
 
     if (process.env.NODE_ENV !== 'production') {
+      // $FlowFixMe
       StyledComponent.warnTooManyClasses = createWarnTooManyClasses(displayName)
     }
 
@@ -354,7 +301,6 @@ export default (ComponentStyle: Function, constructWithOptions: Function) => {
         attrs: true,
         componentStyle: true,
         displayName: true,
-        extend: true,
         styledComponentId: true,
         target: true,
         warnTooManyClasses: true,

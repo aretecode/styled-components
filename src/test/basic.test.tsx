@@ -1,8 +1,14 @@
 // @flow
-import React, { Component } from 'react'
-import { shallow, mount } from 'enzyme'
+import React, { Component, StrictMode } from 'react'
+import { findDOMNode } from 'react-dom'
+import {
+  findRenderedComponentWithType,
+  renderIntoDocument,
+} from 'react-dom/test-utils'
+import TestRenderer from 'react-test-renderer'
 
 import { resetStyled, expectCSSMatches } from './utils'
+import { find } from '../../test-utils'
 
 let styled
 
@@ -17,8 +23,8 @@ describe('basic', () => {
   it('should not throw an error when called with a valid element', () => {
     expect(() => styled.div``).not.toThrowError()
 
-    const FunctionalComponent = () => <div />;
-    class ClassComponent extends Component<any, any> {
+    const FunctionalComponent = () => <div />
+    class ClassComponent extends Component<*, *> {
       render() {
         return <div />
       }
@@ -26,15 +32,15 @@ describe('basic', () => {
     const validComps = ['div', FunctionalComponent, ClassComponent]
     validComps.forEach(comp => {
       expect(() => {
-        const Comp = styled(comp)
-        shallow(<Comp />)
+        const Comp = styled(comp)``
+        TestRenderer.create(<Comp />)
       }).not.toThrowError()
     })
   })
 
   it('should throw a meaningful error when called with an invalid element', () => {
-    const FunctionalComponent = () => <div />;
-    class ClassComponent extends Component<any, any> {
+    const FunctionalComponent = () => <div />
+    class ClassComponent extends Component<*, *> {
       render() {
         return <div />
       }
@@ -48,11 +54,12 @@ describe('basic', () => {
       <FunctionalComponent />,
       <ClassComponent />,
     ]
+
     invalidComps.forEach(comp => {
       expect(() => {
         // $FlowInvalidInputTest
-        const Comp = styled(comp)
-        shallow(<Comp />)
+        const Comp = styled(comp)``
+        TestRenderer.create(<Comp />)
         // $FlowInvalidInputTest
       }).toThrow(`Cannot create styled-component for component: ${comp}`)
     })
@@ -65,7 +72,7 @@ describe('basic', () => {
 
   it('should inject component class when rendered even if no styles are passed', () => {
     const Comp = styled.div``
-    shallow(<Comp />)
+    TestRenderer.create(<Comp />)
     expectCSSMatches('.sc-a {}')
   })
 
@@ -73,7 +80,7 @@ describe('basic', () => {
     const Comp = styled.div`
       color: blue;
     `
-    shallow(<Comp />)
+    TestRenderer.create(<Comp />)
     expectCSSMatches('.sc-a { } .b { color:blue; }')
   })
 
@@ -81,8 +88,8 @@ describe('basic', () => {
     const Comp = styled.div`
       color: blue;
     `
-    shallow(<Comp />)
-    shallow(<Comp />)
+    TestRenderer.create(<Comp />)
+    TestRenderer.create(<Comp />)
     expectCSSMatches('.sc-a {} .b { color:blue; }')
   })
 
@@ -117,7 +124,7 @@ describe('basic', () => {
     const Comp = styled.div({
       color: 'blue',
     })
-    shallow(<Comp />)
+    TestRenderer.create(<Comp />)
     expectCSSMatches('.sc-a {} .b { color:blue; }')
   })
 
@@ -125,94 +132,81 @@ describe('basic', () => {
     const Comp = styled.div(({ color }) => ({
       color,
     }))
-    shallow(<Comp color='blue' />)
+    TestRenderer.create(<Comp color="blue" />)
     expectCSSMatches('.sc-a {} .b { color:blue; }')
   })
 
   describe('jsdom tests', () => {
-    it('should pass the ref to the component', () => {
-      const Comp = styled.div``
-
-      class Wrapper extends Component<any, any> {
-        testRef: any;
-        innerRef = (comp) => { this.testRef = comp }
-
-        render() {
-          return <Comp innerRef={this.innerRef} />
-        }
-      }
-
-      const wrapper = mount(<Wrapper />)
-      const component = wrapper.find(Comp).first()
-
-      expect(wrapper.instance().testRef).toBe(component.getDOMNode())
-      expect(component.find('div').prop('innerRef')).toBeFalsy()
-    })
-
-    class InnerComponent extends Component<any, any> {
+    class InnerComponent extends Component<*, *> {
       render() {
-        return null
+        return <div {...this.props} />
       }
     }
-
-    it('should not leak the innerRef prop to the wrapped child', () => {
-      const OuterComponent = styled(InnerComponent)``
-
-      class Wrapper extends Component<any, any> {
-        testRef: any;
-
-        render() {
-          return (
-            <OuterComponent
-              innerRef={comp => {
-                this.testRef = comp
-              }}
-            />
-          )
-        }
-      }
-
-      const wrapper = mount(<Wrapper />)
-      const innerComponent = wrapper.find(InnerComponent).first()
-
-      expect(wrapper.instance().testRef).toBe(innerComponent.instance())
-      expect(innerComponent.prop('innerRef')).toBeFalsy()
-    })
 
     it('should pass the full className to the wrapped child', () => {
       const OuterComponent = styled(InnerComponent)``
 
-      class Wrapper extends Component<any, any> {
+      class Wrapper extends Component<*, *> {
         render() {
           return <OuterComponent className="test" />
         }
       }
 
-      const wrapper = mount(<Wrapper />)
-      expect(wrapper.find(InnerComponent).prop('className')).toBe('test sc-a b')
+      const wrapper = TestRenderer.create(<Wrapper />)
+      expect(wrapper.root.findByType(InnerComponent).props.className).toBe(
+        'test sc-a b'
+      )
     })
 
-    it('should pass the innerRef to the wrapped styled component', () => {
-      const InnerComponent = styled.div``
-      const OuterComponent = styled(InnerComponent)``
+    it('should pass the ref to the component', () => {
+      const Comp = styled.div``
 
-      class Wrapper extends Component<any, any> {
-        testRef: any;
-        innerRef = (comp) => { this.testRef = comp }
+      class Wrapper extends Component<*, *> {
+        testRef: any = React.createRef()
 
         render() {
-          return <OuterComponent innerRef={this.innerRef} />
+          return (
+            <div>
+              <Comp ref={this.testRef} />
+            </div>
+          )
         }
       }
 
-      const wrapper = mount(<Wrapper />)
-      const innerComponent = wrapper.find(InnerComponent).first()
-      const outerComponent = wrapper.find(OuterComponent).first()
-      const wrapperNode = wrapper.instance()
+      const wrapper = renderIntoDocument(<Wrapper />)
+      const component = find(findDOMNode(wrapper), Comp)
 
-      expect(wrapperNode.testRef).toBe(innerComponent.getDOMNode())
+      expect(wrapper.testRef.current).toBe(component)
+    })
 
-      expect(innerComponent.prop('innerRef')).toBe(wrapperNode.innerRef)
+    it('should pass the ref to the wrapped styled component', () => {
+      class InnerComponent extends React.Component {
+        render() {
+          return <div {...this.props} />
+        }
+      }
+
+      const OuterComponent = styled(InnerComponent)``
+
+      class Wrapper extends Component<*, *> {
+        testRef: any = React.createRef()
+
+        render() {
+          return (
+            <div>
+              <OuterComponent ref={this.testRef} />
+            </div>
+          )
+        }
+      }
+
+      const wrapper = renderIntoDocument(<Wrapper />)
+      const innerComponent = findRenderedComponentWithType(
+        wrapper,
+        InnerComponent
+      )
+
+      expect(wrapper.testRef.current).toBe(innerComponent)
     })
 
     it('should respect the order of StyledComponent creation for CSS ordering', () => {
@@ -224,8 +218,8 @@ describe('basic', () => {
       `
 
       // NOTE: We're mounting second before first and check if we're breaking their order
-      shallow(<SecondComponent />)
-      shallow(<FirstComponent />)
+      TestRenderer.create(<SecondComponent />)
+      TestRenderer.create(<FirstComponent />)
 
       expectCSSMatches('.sc-a {} .d { color:red; } .sc-b {} .c { color:blue; }')
     })
@@ -239,7 +233,7 @@ describe('basic', () => {
         }
       `
 
-      shallow(<Comp />)
+      TestRenderer.create(<Comp />)
       expectCSSMatches(
         '.sc-a{ } @media (min-width:500px){ .b > *{ color:pink; } } '
       )
@@ -296,6 +290,35 @@ describe('basic', () => {
 
       expect(Named1.styledComponentId).toBe('Name-foo')
       expect(Named2.styledComponentId).toBe('Name-bar')
+    })
+
+    it('should work in StrictMode without warnings', () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const Comp = styled.div``
+
+      TestRenderer.create(
+        <StrictMode>
+          <Comp />
+        </StrictMode>
+      )
+
+      expect(spy).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('warnings', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+
+    it('warns upon use of the removed "innerRef" prop', () => {
+      const Comp = styled.div``
+      const ref = React.createRef()
+
+      TestRenderer.create(<Comp innerRef={ref} />)
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('The "innerRef" API has been removed')
+      )
     })
   })
 })
