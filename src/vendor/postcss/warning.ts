@@ -8,6 +8,15 @@
  * }
  */
 class Warning {
+  type: string
+  line: string | number
+  column: string | number
+  node: any
+  plugin: any
+  text: string
+  index: number
+  word: string
+
   /**
    * @param {string} text        - warning message
    * @param {Object} [opts]      - warning options
@@ -19,7 +28,7 @@ class Warning {
    *                               this warning. {@link Result#warn} fills
    *                               this property automatically.
    */
-  constructor(text, opts = {}) {
+  constructor(text, opts: any = {}) {
     /**
      * @member {string} - Type to filter warnings from
      *                    {@link Result#messages}. Always equal

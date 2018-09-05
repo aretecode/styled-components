@@ -28,7 +28,7 @@ import Root from './root'
  *
  * @namespace postcss
  */
-function postcss(...plugins) {
+const postcss: any = (...plugins: any[]) => {
   if (plugins.length === 1 && Array.isArray(plugins[0])) {
     plugins = plugins[0]
   }

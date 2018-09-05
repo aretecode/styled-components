@@ -17,6 +17,11 @@ import list from './list'
  * rule.toString() //=> 'a{}'
  */
 class Rule extends Container {
+  type: string
+  nodes: any[]
+  selector: any
+  raws: any
+
   constructor(defaults) {
     super(defaults)
     this.type = 'rule'

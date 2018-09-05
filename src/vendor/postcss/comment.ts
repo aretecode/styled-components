@@ -11,6 +11,10 @@ import Node from './node'
  * @extends Node
  */
 class Comment extends Node {
+  nodes: any
+  raws: any
+  type: string
+
   constructor(defaults) {
     super(defaults)
     this.type = 'comment'

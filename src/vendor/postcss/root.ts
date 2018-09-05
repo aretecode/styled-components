@@ -17,6 +17,9 @@ import warnOnce from './warn-once'
  * root.nodes.length //=> 2
  */
 class Root extends Container {
+  type: string
+  nodes: any
+
   constructor(defaults) {
     super(defaults)
     this.type = 'root'
@@ -33,7 +36,7 @@ class Root extends Container {
     return super.removeChild(child)
   }
 
-  normalize(child, sample, type) {
+  normalize(child, sample, type?: any) {
     const nodes = super.normalize(child)
 
     if (sample) {
@@ -66,7 +69,7 @@ class Root extends Container {
    * root1.append(root2);
    * const result = root1.toResult({ to: 'all.css', map: true });
    */
-  toResult(opts = {}) {
+  toResult(opts: any = {}) {
     const lazy = new LazyResult(new Processor(), this, opts)
     return lazy.stringify()
   }

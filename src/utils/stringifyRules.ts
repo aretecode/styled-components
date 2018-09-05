@@ -1,7 +1,6 @@
 // @flow
 import Stylis from 'stylis'
 import _insertRulePlugin from 'stylis-rule-sheet'
-import transpileStyles from '../../../transpileStyles'
 import { Interpolation } from '../types'
 
 const COMMENT_REGEX = /^\s*\/\/.*$/gm

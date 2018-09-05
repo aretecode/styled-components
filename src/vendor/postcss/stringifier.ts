@@ -19,7 +19,9 @@ function capitalize(str) {
 }
 
 class Stringifier {
-  constructor(builder) {
+  builder: any
+  
+  constructor(builder?: any) {
     this.builder = builder
   }
 
@@ -104,7 +106,7 @@ class Stringifier {
     this.builder('}', node, 'end')
   }
 
-  raw(node, own, detect) {
+  raw(node, own, detect?: any) {
     let value
     if (!detect) detect = own
 

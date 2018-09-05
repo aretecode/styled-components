@@ -94,11 +94,14 @@ import LazyResult from './lazy-result'
  * processor.process(css2).then(result => console.log(result.css));
  */
 class Processor {
+  version: string
+  plugins: any
+
   /**
    * @param {Array.<Plugin|pluginFunction>|Processor} plugins - PostCSS
    *        plugins. See {@link Processor#use} for plugin format.
    */
-  constructor(plugins = []) {
+  constructor(plugins: any = []) {
     /**
      * @member {string} - Current PostCSS version.
      *

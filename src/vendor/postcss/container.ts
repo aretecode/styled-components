@@ -41,6 +41,11 @@ function cleanSource(nodes) {
  * @abstract
  */
 class Container extends Node {
+  nodes: any
+  raws: any
+  lastEach: any
+  indexes: any
+
   push(child) {
     child.parent = this
     this.nodes.push(child)
@@ -605,7 +610,7 @@ class Container extends Node {
     return this.nodes[this.nodes.length - 1]
   }
 
-  normalize(nodes, sample) {
+  normalize(nodes, sample?: any) {
     if (typeof nodes === 'string') {
       nodes = cleanSource(parse(nodes).nodes)
     } else if (!Array.isArray(nodes)) {

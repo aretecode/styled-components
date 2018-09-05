@@ -4,6 +4,10 @@ import Comment from '../postcss/comment'
 import Parser from '../postcss/parser'
 
 export default class SafeParser extends Parser {
+  tokens: any
+  spaces: any
+  current: any
+
   tokenize() {
     this.tokens = tokenize(this.input, { ignoreErrors: true })
   }

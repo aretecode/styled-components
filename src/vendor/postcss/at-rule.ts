@@ -21,6 +21,10 @@ import warnOnce from './warn-once'
  * media.nodes   //=> []
  */
 class AtRule extends Container {
+  nodes: any
+  raws: any
+  type: string
+
   constructor(defaults) {
     super(defaults)
     this.type = 'atrule'

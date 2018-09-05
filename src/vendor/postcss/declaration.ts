@@ -14,6 +14,9 @@ import Node from './node'
  * decl.toString() //=> ' color: black'
  */
 class Declaration extends Node {
+  type: string
+  raws: any
+
   constructor(defaults) {
     super(defaults)
     this.type = 'decl'

@@ -22,13 +22,21 @@ import Warning from './warning'
  * var result2 = postcss.parse(css).toResult();
  */
 class Result {
+  processor: any
+  messages: any
+  root: any
+  map: any
+  css: any
+  lastPlugin: any
+  plugins: any
+
   /**
    * @param {Processor} processor - processor used for this transformation.
    * @param {Root}      root      - Root node after all transformations.
    * @param {processOptions} opts - options from the {@link Processor#process}
    *                                or {@link Root#toResult}
    */
-  constructor(processor, root, opts) {
+  constructor(processor, root, opts?: any) {
     /**
      * @member {Processor} - The Processor instance used
      *                       for this transformation.
@@ -128,7 +136,7 @@ class Result {
    *
    * @return {Warning} created warning
    */
-  warn(text, opts = {}) {
+  warn(text, opts: any = {}) {
     if (!opts.plugin) {
       if (this.lastPlugin && this.lastPlugin.postcssPlugin) {
         opts.plugin = this.lastPlugin.postcssPlugin

@@ -5,7 +5,11 @@
  * injected.
  * (This excludes rehydrated names) */
 
-export type Names = { [string]: { [string]: boolean } }
+export type Names = {
+  [key: string]: {
+    [key: string]: boolean
+  }
+}
 
 /* adds a new ID:name pairing to a names dictionary */
 export const addNameForId = (names: Names, id: string, name: string) => {

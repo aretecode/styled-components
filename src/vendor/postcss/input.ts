@@ -21,6 +21,10 @@ let sequence = 0
  * const input = root.source.input;
  */
 class Input {
+  css: any
+  file: any
+  map: any
+
   /**
    * @param {string} css    - input CSS source
    * @param {object} [opts] - {@link Processor#process} options

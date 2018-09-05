@@ -32,6 +32,18 @@ import warnOnce from './warn-once'
  * throw node.error('Unknown variable', { plugin: 'postcss-vars' });
  */
 class CssSyntaxError {
+  nodes: any
+  raws: any
+  message: any
+  line: any
+  column: any
+  source: any
+  file: any
+  plugin: any
+  reason: any
+  name: any
+  input: any
+
   /**
    * @param {string} message  - error message
    * @param {number} [line]   - source line of the error

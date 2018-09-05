@@ -6,6 +6,14 @@ import Root from './root'
 import Rule from './rule'
 
 export default class Parser {
+  input: any
+  tokens: any
+  pos: number
+  root: any
+  spaces: string | any
+  semicolon: boolean
+  current: any
+
   constructor(input) {
     this.input = input
 

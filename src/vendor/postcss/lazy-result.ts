@@ -26,6 +26,12 @@ function isPromise(obj) {
  * const lazy = postcss([cssnext]).process(css);
  */
 class LazyResult {
+  stringified: boolean
+  processed: boolean
+  result: any
+  error: any
+  processing: any
+
   constructor(processor, css, opts) {
     this.stringified = false
     this.processed = false
