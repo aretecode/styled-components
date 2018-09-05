@@ -3,7 +3,7 @@
 exports[`ssr should add a nonce to the stylesheet if webpack nonce is detected in the global scope 1`] = `"<h1 class=\\"sc-a b\\">Hello SSR!</h1>"`;
 
 exports[`ssr should add a nonce to the stylesheet if webpack nonce is detected in the global scope 2`] = `
-"<style data-styled=\\"b\\" data-styled-version=\\"undefined\\">
+"<style nonce=\\"foo\\" data-styled=\\"b\\" data-styled-version=\\"undefined\\">
 /* sc-component-id: sc-global-2303210225 */
 body{background:papayawhip;}
 /* sc-component-id: sc-a */

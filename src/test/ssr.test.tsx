@@ -10,7 +10,7 @@ import _keyframes from '../constructors/keyframes'
 import stringifyRules from '../utils/stringifyRules'
 import css from '../constructors/css'
 
-jest.mock('../utils/nonce')
+// jest.mock('../utils/nonce')
 
 let index = 0
 const keyframes = _keyframes(() => `keyframe_${index++}`, stringifyRules, css)

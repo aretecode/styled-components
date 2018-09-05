@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`development allows interpolation 1`] = `"Cannot read property 'replace' of undefined"`;
+exports[`development allows interpolation 1`] = `""`;
 
-exports[`development returns a rich error 1`] = `"Cannot read property 'trim' of undefined"`;
+exports[`development returns a rich error 1`] = `""`;
 
 exports[`production returns an error link 1`] = `"An error occurred. See https://github.com/styled-components/styled-components/blob/master/src/utils/errors.md#2 for more information. Additional arguments: "`;
 
