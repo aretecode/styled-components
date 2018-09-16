@@ -283,6 +283,7 @@ export default class StyleSheet {
     }
 
     const tag = this.getTagForId(id)
+
     /* add deferred rules for component */
     if (this.deferred[id] !== undefined) {
       // Combine passed cssRules with previously deferred CSS rules
@@ -309,8 +310,10 @@ export default class StyleSheet {
 
     /* remove all rules from the tag */
     tag.removeRules(id)
+
     /* ignore possible rehydrated names */
     this.ignoreRehydratedNames[id] = true
+
     /* delete possible deferred rules */
     this.deferred[id] = undefined
   }

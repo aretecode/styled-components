@@ -5,18 +5,13 @@
 import React from 'react'
 import { renderToString, renderToNodeStream } from 'react-dom/server'
 import ServerStyleSheet from '../models/ServerStyleSheet'
-import { resetStyled, resetCreateGlobalStyle } from './utils'
-import _keyframes from '../constructors/keyframes'
-import stringifyRules from '../utils/stringifyRules'
-import css from '../constructors/css'
+import { resetStyled, seedNextClassnames } from './utils'
+import keyframes from '../constructors/keyframes'
+import createGlobalStyle from '../constructors/createGlobalStyle'
 
 // jest.mock('../utils/nonce')
 
-let index = 0
-const keyframes = _keyframes(() => `keyframe_${index++}`, stringifyRules, css)
-
 let styled
-let createGlobalStyle
 
 describe('ssr', () => {
   beforeEach(() => {
@@ -24,7 +19,6 @@ describe('ssr', () => {
     require('../utils/nonce').mockReset()
 
     styled = resetStyled(true)
-    createGlobalStyle = resetCreateGlobalStyle()
   })
 
   afterEach(() => {
@@ -187,6 +181,8 @@ describe('ssr', () => {
       animation: ${props => props.animation} 1s both;
     `
 
+    seedNextClassnames(['keyframe_0'])
+
     const sheet = new ServerStyleSheet()
     const html = renderToString(
       sheet.collectStyles(
@@ -282,7 +278,7 @@ describe('ssr', () => {
 
       stream.on('end', () => {
         expect(received).toMatchSnapshot()
-        expect(sheet.closed).toBe(true)
+        expect(sheet.sealed).toBe(true)
         resolve()
       })
 
@@ -291,6 +287,9 @@ describe('ssr', () => {
   })
 
   it('should interleave styles with rendered HTML when chunked streaming', () => {
+    const Component = createGlobalStyle`
+      body { background: papayawhip; }
+    `
     const Heading = styled.h1`
       color: red;
     `
@@ -310,10 +309,11 @@ describe('ssr', () => {
     const sheet = new ServerStyleSheet()
     const jsx = sheet.collectStyles(
       <React.Fragment>
+        <Component />
         <Heading>Hello SSR!</Heading>
         <Body>
-          {new Array(1000).fill(0).map(() => (
-            <div>*************************</div>
+          {new Array(1000).fill(0).map((_, i) => (
+            <div key={i}>*************************</div>
           ))}
         </Body>
         <SideBar>SideBar</SideBar>
@@ -331,7 +331,7 @@ describe('ssr', () => {
 
       stream.on('end', () => {
         expect(received).toMatchSnapshot()
-        expect(sheet.closed).toBe(true)
+        expect(sheet.sealed).toBe(true)
         expect(received).toMatch(/yellow/)
         expect(received).toMatch(/green/)
         resolve()
@@ -342,13 +342,6 @@ describe('ssr', () => {
   })
 
   it('should handle errors while streaming', () => {
-    const Component = createGlobalStyle`
-      body { background: papayawhip; }
-    `
-    const Heading = styled.h1`
-      color: red;
-    `
-
     const sheet = new ServerStyleSheet()
     const jsx = sheet.collectStyles(null)
     const stream = sheet.interleaveWithNodeStream(renderToNodeStream(jsx))
@@ -358,7 +351,7 @@ describe('ssr', () => {
 
       stream.on('error', err => {
         expect(err).toMatchSnapshot()
-        expect(sheet.closed).toBe(true)
+        expect(sheet.sealed).toBe(true)
         resolve()
       })
     })

@@ -16,8 +16,18 @@ export type Styles =
   | Object
   | ((executionContext: Object) => Interpolation)
 
-/* eslint-disable no-undef */
 export type Target = string | ComponentType<any>
+
+
+export type ConstructWithOptionsOptions = {
+  attrs?: { [key: string]: any }
+  [key: string]: any
+}
+export interface ConstructWithOptionsTemplateFunction extends Function {
+  (...args: any[]): any
+  withConfig(config: any): any
+  attrs(attrs?: any): any
+}
 
 export type NameGenerator = (hash: number) => string
 

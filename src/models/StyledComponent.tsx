@@ -1,18 +1,19 @@
 // @flow
-
+import { ComponentType } from 'react'
 import validAttr from '@emotion/is-prop-valid'
 import hoist from 'hoist-non-react-statics'
-import React, { Component, createElement } from 'react'
+import React, { createElement, PureComponent } from 'react'
+import ComponentStyle from './ComponentStyle'
 import createWarnTooManyClasses from '../utils/createWarnTooManyClasses'
 import determineTheme from '../utils/determineTheme'
 import escape from '../utils/escape'
-
 import generateDisplayName from '../utils/generateDisplayName'
 import getComponentName from '../utils/getComponentName'
-import once from '../utils/once'
+import isFunction from '../utils/isFunction'
 import isTag from '../utils/isTag'
 import isDerivedReactComponent from '../utils/isDerivedReactComponent'
 import isStyledComponent from '../utils/isStyledComponent'
+import once from '../utils/once'
 import StyleSheet from './StyleSheet'
 import { ThemeConsumer, Theme } from './ThemeProvider'
 import { StyleSheetConsumer } from './StyleSheetManager'
@@ -28,7 +29,7 @@ const identifiers = {}
 
 /* We depend on components having unique IDs */
 function generateId(
-  ComponentStyle: Function,
+  componentStyleInstance: Function,
   _displayName: string,
   parentComponentId: string
 ) {
@@ -42,7 +43,7 @@ function generateId(
   const nr = (identifiers[displayName] || 0) + 1
   identifiers[displayName] = nr
 
-  const componentId = `${displayName}-${ComponentStyle.generateName(
+  const componentId = `${displayName}-${componentStyleInstance.generateName(
     displayName + nr
   )}`
 
@@ -56,14 +57,45 @@ const warnInnerRef = once(() =>
   )
 )
 
+export interface BaseStyledComponentForwardedClass {
+  componentStyle?: any
+  defaultProps?: any
+  styledComponentId?: string
+  target?: ComponentType
+}
+export interface BaseStyledComponentProps {
+  className?: string
+  ref?: any
+  style?: any
+  forwardedClass?: BaseStyledComponentForwardedClass
+  [key: string]: any
+}
+export interface StyledComponentSpecificAttributes {
+  attrs?: any
+
+  componentStyle?: any
+
+  displayName?: string
+  target?: true
+
+  // dev
+  styledComponentId?: string
+  warnTooManyClasses?: boolean
+
+
+  // not really, should be generic
+  withComponent(): BaseStyledComponent
+}
+
 // $FlowFixMe
-class BaseStyledComponent extends Component<any> {
+class BaseStyledComponent<Props extends any = BaseStyledComponentProps> extends PureComponent<Props> {
   // renderOuter: Function
   // renderInner: Function
   styleSheet: StyleSheet
 
   attrs = {}
 
+  // @todo why not use = () => ?
   constructor() {
     super()
     this.renderOuter = this.renderOuter.bind(this)
@@ -113,7 +145,7 @@ class BaseStyledComponent extends Component<any> {
       )
     }
 
-    const propsForElement = { ...this.attrs }
+    const propsForElement = { ...this.attrs } as Props
 
     let key
     for (key in this.props) {
@@ -125,8 +157,9 @@ class BaseStyledComponent extends Component<any> {
       } else if (!isTargetTag || validAttr(key)) {
         // Don't pass through non HTML tags through to HTML elements
         propsForElement[key] =
+          // @todo may want to optimize
           key === 'style' && key in this.attrs
-            ? { ...this.attrs[key], ...this.props[key] }
+            ? { ...this.attrs[key], ...this.props[key] as any }
             : this.props[key]
       }
     }
@@ -158,7 +191,7 @@ class BaseStyledComponent extends Component<any> {
       attr = attrs[key]
 
       this.attrs[key] =
-        typeof attr === 'function' &&
+        isFunction(attr) &&
         !isDerivedReactComponent(attr) &&
         !isStyledComponent(attr)
           ? attr(context)
@@ -207,111 +240,117 @@ class BaseStyledComponent extends Component<any> {
   }
 }
 
-// @todo ComponentStyle import?
-export default (ComponentStyle: { new (...args: any[]): any }) => {
-  function createStyledComponent(
-    target: Target,
-    options: Object,
-    rules: RuleSet
-  ) {
-    const isTargetStyledComp = isStyledComponent(target)
-    const isClass = !isTag(target)
+export interface StyledComponentOptions<Attributes extends any = any> {
+  displayName?: string
+  parentComponentId?: string
+  ParentComponent,
+  componentId?: string
+  ComponentStyle?: ComponentType
+  attrs: Attributes
+  [key: string]: any
+}
+export type StyledComponentComponentStyleType = { new (...args: any[]): any }
 
-    const {
-      displayName = generateDisplayName(target),
-      componentId = generateId(
-        ComponentStyle,
-        options.displayName,
-        options.parentComponentId
-      ),
-      ParentComponent = BaseStyledComponent,
-      attrs,
-    } = options
+export default function createStyledComponent(
+  target: Target,
+  options: StyledComponentOptions,
+  rules: RuleSet
+) {
+  const isTargetStyledComp = isStyledComponent(target)
+  const isClass = !isTag(target)
 
-    const styledComponentId =
-      options.displayName && options.componentId
-        ? `${escape(options.displayName)}-${options.componentId}`
-        : options.componentId || componentId
+  const {
+    displayName = generateDisplayName(target),
+    componentId = generateId(
+      ComponentStyle,
+      options.displayName,
+      options.parentComponentId
+    ),
+    ParentComponent = BaseStyledComponent,
+    attrs,
+  } = options
 
-    // fold the underlying StyledComponent attrs up (implicit extend)
-    const finalAttrs =
-      // $FlowFixMe
-      isTargetStyledComp && target.attrs ? { ...target.attrs, ...attrs } : attrs
+  const styledComponentId =
+    options.displayName && options.componentId
+      ? `${escape(options.displayName)}-${options.componentId}`
+      : options.componentId || componentId
 
-    const componentStyle = new ComponentStyle(
-      isTargetStyledComp
-        ? // fold the underlying StyledComponent rules up (implicit extend)
-          // $FlowFixMe
-          target.componentStyle.rules.concat(rules)
-        : rules,
-      finalAttrs,
-      styledComponentId
-    )
-
-    /**
-     * forwardRef creates a new interim component, which we'll take advantage of
-     * instead of extending ParentComponent to create _another_ interim class
-     */
-    const StyledComponent = React.forwardRef((props, ref) => (
-      <ParentComponent
-        {...props}
-        forwardedClass={StyledComponent}
-        forwardedRef={ref}
-      />
-    ))
-
+  // fold the underlying StyledComponent attrs up (implicit extend)
+  const finalAttrs =
     // $FlowFixMe
-    StyledComponent.attrs = finalAttrs
-    // $FlowFixMe
-    StyledComponent.componentStyle = componentStyle
-    StyledComponent.displayName = displayName
-    // $FlowFixMe
-    StyledComponent.styledComponentId = styledComponentId
+    isTargetStyledComp && target.attrs ? { ...target.attrs, ...attrs } : attrs
 
-    // fold the underlying StyledComponent target up since we folded the styles
-    // $FlowFixMe
-    StyledComponent.target = isTargetStyledComp ? target.target : target
+  const componentStyle = new ComponentStyle(
+    isTargetStyledComp
+      ? // fold the underlying StyledComponent rules up (implicit extend)
+        // $FlowFixMe
+        target.componentStyle.rules.concat(rules)
+      : rules,
+    finalAttrs,
+    styledComponentId
+  )
 
-    // $FlowFixMe
-    StyledComponent.withComponent = function withComponent(tag: Target) {
-      const { componentId: previousComponentId, ...optionsToCopy } = options
+  /**
+   * forwardRef creates a new interim component, which we'll take advantage of
+   * instead of extending ParentComponent to create _another_ interim class
+   */
+  const StyledComponent = React.forwardRef((props, ref) => (
+    <ParentComponent
+      {...props}
+      forwardedClass={StyledComponent}
+      forwardedRef={ref}
+    />
+  ))
 
-      const newComponentId =
-        previousComponentId &&
-        `${previousComponentId}-${
-          isTag(tag) ? tag : escape(getComponentName(tag))
-        }`
+  // $FlowFixMe
+  StyledComponent.attrs = finalAttrs
+  // $FlowFixMe
+  StyledComponent.componentStyle = componentStyle
+  StyledComponent.displayName = displayName
+  // $FlowFixMe
+  StyledComponent.styledComponentId = styledComponentId
 
-      const newOptions = {
-        ...optionsToCopy,
-        attrs: finalAttrs,
-        componentId: newComponentId,
-        ParentComponent,
-      }
+  // fold the underlying StyledComponent target up since we folded the styles
+  // $FlowFixMe
+  StyledComponent.target = isTargetStyledComp ? target.target : target
 
-      return createStyledComponent(tag, newOptions, rules)
+  // $FlowFixMe
+  StyledComponent.withComponent = function withComponent(tag: Target) {
+    const { componentId: previousComponentId, ...optionsToCopy } = options
+
+    const newComponentId =
+      previousComponentId &&
+      `${previousComponentId}-${
+        isTag(tag) ? tag : escape(getComponentName(tag))
+      }`
+
+    const newOptions = {
+      ...optionsToCopy,
+      attrs: finalAttrs,
+      componentId: newComponentId,
+      ParentComponent,
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      // $FlowFixMe
-      StyledComponent.warnTooManyClasses = createWarnTooManyClasses(displayName)
-    }
-
-    if (isClass) {
-      hoist(StyledComponent, target, {
-        // all SC-specific things should not be hoisted
-        attrs: true,
-        componentStyle: true,
-        displayName: true,
-        styledComponentId: true,
-        target: true,
-        warnTooManyClasses: true,
-        withComponent: true,
-      })
-    }
-
-    return StyledComponent
+    return createStyledComponent(tag, newOptions, rules)
   }
 
-  return createStyledComponent
+  if (process.env.NODE_ENV !== 'production') {
+    // $FlowFixMe
+    StyledComponent.warnTooManyClasses = createWarnTooManyClasses(displayName)
+  }
+
+  if (isClass) {
+    hoist(StyledComponent, target, {
+      // all SC-specific things should not be hoisted
+      attrs: true,
+      componentStyle: true,
+      displayName: true,
+      styledComponentId: true,
+      target: true,
+      warnTooManyClasses: true,
+      withComponent: true,
+    })
+  }
+
+  return StyledComponent
 }

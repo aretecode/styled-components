@@ -1,7 +1,9 @@
 // @flow
-import hyphenate from 'fbjs/lib/hyphenateStyleName'
+import isFunction from './isFunction'
 import isPlainObject from './isPlainObject'
 import isStyledComponent from './isStyledComponent'
+import hyphenate from '../utils/hyphenateStyleName'
+
 import { Interpolation } from '../types'
 import Keyframes from '../models/Keyframes'
 
@@ -55,7 +57,7 @@ const flatten = (
     }
 
     /* Either execute or defer the function */
-    if (typeof chunk === 'function') {
+    if (isFunction(chunk)) {
       if (executionContext) {
         ruleSet.push(
           // $FlowFixMe it's a normal function but flow doesn't get that
