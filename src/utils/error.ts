@@ -1,23 +1,12 @@
 // @flow
 
-declare var preval: Function
-
 /**
+ * @todo EMPTY_OBJ
  * Parse errors.md and turn it into a simple hash of code: message
  */
 const ERRORS =
   process.env.NODE_ENV !== 'production'
-    ? preval`
-      const fs = require('fs');
-      const md = fs.readFileSync(__dirname + '/errors.md', 'utf8');
-
-      module.exports = md.split(/^#/gm).slice(1).reduce((errors, str) => {
-        const [, code, message] = str.split(/^.*?(\\d+)\\s*\\n/)
-        errors[code] = message
-
-        return errors;
-      }, {});
-    `
+    ? require('./errorDevelopoment').default
     : {}
 
 /**
