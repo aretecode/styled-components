@@ -2,7 +2,7 @@
 import Input from '../postcss/input'
 import SafeParser from './safe-parser'
 
-export default function safeParse(css, opts) {
+export default function safeParse(css: string, opts?: any) {
   const input = new Input(css, opts)
 
   const parser = new SafeParser(input)

@@ -12,11 +12,11 @@ export const resetStyleCache = () => {
   generated = {}
 }
 
-/*
- InlineStyle takes arbitrary CSS and generates a flat object
+/**
+ * InlineStyle takes arbitrary CSS and generates a flat object
  */
 export default (styleSheet: StyleSheet) => {
-  class InlineStyle {
+  return class InlineStyle {
     rules: RuleSet
 
     constructor(rules: RuleSet) {
@@ -63,6 +63,4 @@ export default (styleSheet: StyleSheet) => {
       return generated[hash]
     }
   }
-
-  return InlineStyle
 }

@@ -16,8 +16,11 @@ export type Styles =
   | Object
   | ((executionContext: Object) => Interpolation)
 
-export type Target = string | ComponentType<any>
-
+export type StyledComponentTarget = {
+  styledComponentId?: string
+}
+// @todo need to copy this type in where Target is StyledComponnt
+export type Target = string | ComponentType<any> | StyledComponentTarget
 
 export type ConstructWithOptionsOptions = {
   attrs?: { [key: string]: any }
@@ -36,7 +39,7 @@ export type CSSConstructor = (
   ...interpolations: Array<Interpolation>
 ) => RuleSet
 export type StyleSheet = {
-  create: Function,
+  create: Function
 }
 
 export type Flattener = (
