@@ -2,9 +2,9 @@
 import hashStr from '../vendor/glamor/hash'
 import StyleSheet from '../models/StyleSheet'
 import once from '../utils/once'
-import type { Interpolation, Stringifier } from '../types'
+import { Interpolation, Stringifier } from '../types'
 
-type InjectGlobalFn = (
+export type InjectGlobalFn = (
   strings: Array<string>,
   ...interpolations: Array<Interpolation>
 ) => void
@@ -30,6 +30,7 @@ export default (stringifyRules: Stringifier, css: Function) => {
       styleSheet.inject(id, stringifyRules(rules))
     }
 
+    // shouldn't this be in if (!= production? or dropped in dead code?)
     warnInjectGlobalDeprecated()
   }
 
