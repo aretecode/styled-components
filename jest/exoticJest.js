@@ -10,4 +10,8 @@ require('../test-utils/setupTestFramework.js')
 // Enzyme.configure({ adapter: new Adapter() })
 // // eslint-disable-next-line no-underscore-dangle
 // global.__SERVER__ = typeof document === 'undefined'
-global.preval = x => eval(x)
+// global.preval = x => {
+//   const evaluated = eval(x)
+//   if (x.includes('module.exports')) {}
+//   return evaluated
+// }

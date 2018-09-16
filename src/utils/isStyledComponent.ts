@@ -1,6 +1,9 @@
 // @flow
-import { Target } from '../types'
+import { Target, StyledComponentTarget } from '../types'
 
 export default function isStyledComponent(target: Target) {
-  return target && typeof target.styledComponentId === 'string'
+  return (
+    target &&
+    typeof (target as StyledComponentTarget).styledComponentId === 'string'
+  )
 }

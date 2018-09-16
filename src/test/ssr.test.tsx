@@ -5,18 +5,13 @@
 import React from 'react'
 import { renderToString, renderToNodeStream } from 'react-dom/server'
 import ServerStyleSheet from '../models/ServerStyleSheet'
-import { resetStyled, resetCreateGlobalStyle } from './utils'
-import _keyframes from '../constructors/keyframes'
-import stringifyRules from '../utils/stringifyRules'
-import css from '../constructors/css'
+import { resetStyled, seedNextClassnames } from './utils'
+import keyframes from '../constructors/keyframes'
+import createGlobalStyle from '../constructors/createGlobalStyle'
 
 // jest.mock('../utils/nonce')
 
-let index = 0
-const keyframes = _keyframes(() => `keyframe_${index++}`, stringifyRules, css)
-
 let styled
-let createGlobalStyle
 
 describe('ssr', () => {
   beforeEach(() => {
@@ -24,7 +19,6 @@ describe('ssr', () => {
     require('../utils/nonce').mockReset()
 
     styled = resetStyled(true)
-    createGlobalStyle = resetCreateGlobalStyle()
   })
 
   afterEach(() => {
@@ -187,6 +181,8 @@ describe('ssr', () => {
       animation: ${props => props.animation} 1s both;
     `
 
+    seedNextClassnames(['keyframe_0'])
+
     const sheet = new ServerStyleSheet()
     const html = renderToString(
       sheet.collectStyles(
@@ -282,7 +278,62 @@ describe('ssr', () => {
 
       stream.on('end', () => {
         expect(received).toMatchSnapshot()
-        expect(sheet.closed).toBe(true)
+        expect(sheet.sealed).toBe(true)
+        resolve()
+      })
+
+      stream.on('error', reject)
+    })
+  })
+
+  it('should interleave styles with rendered HTML when chunked streaming', () => {
+    const Component = createGlobalStyle`
+      body { background: papayawhip; }
+    `
+    const Heading = styled.h1`
+      color: red;
+    `
+
+    const Body = styled.div`
+      color: blue;
+    `
+
+    const SideBar = styled.div`
+      color: yellow;
+    `
+
+    const Footer = styled.div`
+      color: green;
+    `
+
+    const sheet = new ServerStyleSheet()
+    const jsx = sheet.collectStyles(
+      <React.Fragment>
+        <Component />
+        <Heading>Hello SSR!</Heading>
+        <Body>
+          {new Array(1000).fill(0).map((_, i) => (
+            <div key={i}>*************************</div>
+          ))}
+        </Body>
+        <SideBar>SideBar</SideBar>
+        <Footer>Footer</Footer>
+      </React.Fragment>
+    )
+    const stream = sheet.interleaveWithNodeStream(renderToNodeStream(jsx))
+
+    return new Promise((resolve, reject) => {
+      let received = ''
+
+      stream.on('data', chunk => {
+        received += chunk
+      })
+
+      stream.on('end', () => {
+        expect(received).toMatchSnapshot()
+        expect(sheet.sealed).toBe(true)
+        expect(received).toMatch(/yellow/)
+        expect(received).toMatch(/green/)
         resolve()
       })
 
@@ -291,23 +342,16 @@ describe('ssr', () => {
   })
 
   it('should handle errors while streaming', () => {
-    const Component = createGlobalStyle`
-      body { background: papayawhip; }
-    `
-    const Heading = styled.h1`
-      color: red;
-    `
-
     const sheet = new ServerStyleSheet()
     const jsx = sheet.collectStyles(null)
     const stream = sheet.interleaveWithNodeStream(renderToNodeStream(jsx))
 
     return new Promise((resolve, reject) => {
-      stream.on('data', () => {})
+      stream.on('data', function noop() {})
 
       stream.on('error', err => {
         expect(err).toMatchSnapshot()
-        expect(sheet.closed).toBe(true)
+        expect(sheet.sealed).toBe(true)
         resolve()
       })
     })

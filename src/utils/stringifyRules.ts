@@ -1,5 +1,5 @@
 // @flow
-import Stylis from 'stylis'
+import Stylis from 'stylis/stylis.min'
 import _insertRulePlugin from 'stylis-rule-sheet'
 import { Interpolation } from '../types'
 
@@ -49,7 +49,7 @@ stylisSplitter.use([parseRulesPlugin, returnRulesPlugin])
 const stringifyRules = (
   rules: Array<Interpolation>,
   selector: string,
-  prefix: string
+  prefix?: string
 ): Array<string> => {
   const flatCSS = rules.join('').replace(COMMENT_REGEX, '') // replace JS comments
 

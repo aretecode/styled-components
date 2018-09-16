@@ -1,3 +1,6 @@
+/**
+ * @file @todo need to fix `replace`
+ */
 /* eslint-disable flowtype/require-valid-file-annotation, no-console, import/extensions */
 import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
@@ -7,6 +10,7 @@ import json from 'rollup-plugin-json'
 import flow from 'rollup-plugin-flow'
 import { terser } from 'rollup-plugin-terser'
 import sourceMaps from 'rollup-plugin-sourcemaps'
+import typescript from 'rollup-plugin-typescript'
 import pkg from './package.json'
 
 // rollup-plugin-ignore stopped working, so we'll just remove the import lines 😐
@@ -28,10 +32,10 @@ const getCJS = override => ({ ...cjs, ...override })
 const getESM = override => ({ ...esm, ...override })
 
 const commonPlugins = [
-  flow({
-    // needed for sourcemaps to be properly generated
-    pretty: true,
-  }),
+  // flow({
+  //   // needed for sourcemaps to be properly generated
+  //   pretty: true,
+  // }),
   sourceMaps(),
   json(),
   nodeResolve(),
@@ -39,30 +43,33 @@ const commonPlugins = [
     exclude: 'node_modules/**',
     plugins: ['external-helpers'],
   }),
+  typescript(),
   commonjs({
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
     ignoreGlobal: true,
     namedExports: {
       'react-is': ['isValidElementType'],
     },
   }),
-  replace({
-    __DEV__: JSON.stringify(false), // disable flag indicating a Jest run
-    __VERSION__: JSON.stringify(pkg.version),
-  }),
+  // replace({
+  //   // disable flag indicating a Jest run
+  //   // __DEV__: JSON.stringify(false),
+  //   __VERSION__: JSON.stringify(pkg.version),
+  // }),
 ]
 
 const prodPlugins = [
-  replace({
-    ...propTypeIgnore,
-    'process.env.NODE_ENV': JSON.stringify('production'),
-  }),
+  // replace({
+  //   ...propTypeIgnore,
+  //   'process.env.NODE_ENV': JSON.stringify('production'),
+  // }),
   terser({
-    sourceMap: true,
+    sourcemap: true,
   }),
 ]
 
 const configBase = {
-  input: './src/index.js',
+  input: './src/index.ts',
 
   // \0 is rollup convention for generated in memory modules
   external: id =>
@@ -74,7 +81,7 @@ const globals = { react: 'React' }
 
 const standaloneBaseConfig = {
   ...configBase,
-  input: './src/index-standalone.js',
+  input: './src/index-standalone.ts',
   output: {
     file: 'dist/styled-components.js',
     format: 'iife',
@@ -85,19 +92,19 @@ const standaloneBaseConfig = {
   },
   external: Object.keys(globals),
   plugins: configBase.plugins.concat(
-    replace({
-      ...streamIgnore,
-      __SERVER__: JSON.stringify(false),
-    })
+    // replace({
+    //   ...streamIgnore,
+    //   // __SERVER__: JSON.stringify(false),
+    // })
   ),
 }
 
 const standaloneConfig = {
   ...standaloneBaseConfig,
   plugins: standaloneBaseConfig.plugins.concat(
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('development'),
-    })
+    // replace({
+    //   'process.env.NODE_ENV': JSON.stringify('development'),
+    // })
   ),
 }
 
@@ -117,9 +124,9 @@ const serverConfig = {
     getCJS({ file: 'dist/styled-components.cjs.js' }),
   ],
   plugins: configBase.plugins.concat(
-    replace({
-      __SERVER__: JSON.stringify(true),
-    })
+    // replace({
+    //   // __SERVER__: JSON.stringify(true),
+    // })
   ),
 }
 
@@ -130,65 +137,39 @@ const browserConfig = {
     getCJS({ file: 'dist/styled-components.browser.cjs.js' }),
   ],
   plugins: configBase.plugins.concat(
-    replace({
-      ...streamIgnore,
-      __SERVER__: JSON.stringify(false),
-    })
-  ),
-}
-
-const noTagsPath = './src/index-without-tags.js'
-
-const noTagServerConfig = {
-  ...configBase,
-  input: noTagsPath,
-  output: [
-    getESM({ file: 'dist/styled-components-no-tags.esm.js' }),
-    getCJS({ file: 'dist/styled-components-no-tags.cjs.js' }),
-  ],
-  plugins: configBase.plugins.concat(
-    replace({
-      __SERVER__: JSON.stringify(true),
-    })
-  ),
-}
-
-const noTagBrowserConfig = {
-  ...configBase,
-  input: noTagsPath,
-  output: [
-    getESM({ file: 'dist/styled-components-no-tags.browser.esm.js' }),
-    getCJS({ file: 'dist/styled-components-no-tags.browser.cjs.js' }),
-  ],
-  plugins: configBase.plugins.concat(
-    replace({
-      ...streamIgnore,
-      __SERVER__: JSON.stringify(false),
-    })
+    // replace({
+    //   ...streamIgnore,
+    //   // __SERVER__: JSON.stringify(false),
+    // })
   ),
 }
 
 const nativeConfig = {
   ...configBase,
-  input: './src/native/index.js',
-  output: getCJS({
-    file: 'dist/styled-components.native.cjs.js',
-  }),
+  input: './src/native/index.ts',
+  output: [
+    getCJS({
+      file: 'native/dist/styled-components.native.cjs.js',
+    }),
+    getESM({
+      file: 'native/dist/styled-components.native.esm.js',
+    }),
+  ],
 }
 
 const primitivesConfig = {
   ...configBase,
-  input: './src/primitives/index.js',
+  input: './src/primitives/index.ts',
   output: [
-    getESM({ file: 'dist/styled-components-primitives.esm.js' }),
+    getESM({ file: 'primitives/dist/styled-components-primitives.esm.js' }),
     getCJS({
-      file: 'dist/styled-components-primitives.cjs.js',
+      file: 'primitives/dist/styled-components-primitives.cjs.js',
     }),
   ],
   plugins: configBase.plugins.concat(
-    replace({
-      __SERVER__: JSON.stringify(true),
-    })
+    // replace({
+    //   // __SERVER__: JSON.stringify(true),
+    // })
   ),
 }
 
@@ -197,8 +178,6 @@ export default [
   standaloneProdConfig,
   serverConfig,
   browserConfig,
-  noTagServerConfig,
-  noTagBrowserConfig,
   nativeConfig,
   primitivesConfig,
 ]

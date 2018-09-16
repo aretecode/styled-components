@@ -55,6 +55,8 @@ export interface Tag<T> {
   toHTML(additionalAttrs: string): string
   toElement(): ReactElement<any>
   clone(): Tag<T>
+  /* used in server side rendering to indicate that the rules in the tag have been flushed to HTML */
+  sealed: boolean
 }
 
 /* this marker separates component styles and is important for rehydration */
@@ -210,7 +212,7 @@ const makeSpeedyTag = (
 
     const size = sizes[marker]
     const sheet = sheetForTag(el)
-    const removalIndex = addUpUntilIndex(sizes, marker)
+    const removalIndex = addUpUntilIndex(sizes, marker) - 1
     deleteRules(sheet, removalIndex, size)
     sizes[marker] = 0
     resetIdNames(names, id)
@@ -243,18 +245,19 @@ const makeSpeedyTag = (
   }
 
   return {
-    styleTag: el,
+    clone() {
+      throw new StyledError(5)
+    },
+    css,
     getIds: getIdsFromMarkersFactory(markers),
     hasNameForId: hasNameForId(names),
     insertMarker,
     insertRules,
     removeRules,
-    css,
-    toHTML: wrapAsHtmlTag(css, names),
+    sealed: false,
+    styleTag: el,
     toElement: wrapAsElement(css, names),
-    clone() {
-      throw new StyledError(5)
-    },
+    toHTML: wrapAsHtmlTag(css, names),
   }
 }
 
@@ -327,12 +330,15 @@ const makeBrowserTag = (
 
   const css = () => {
     let str = ''
+
     // eslint-disable-next-line guard-for-in
     for (const id in markers) {
       str += markers[id].data
     }
+
     return str
   }
+
   return {
     clone() {
       throw new StyledError(5)
@@ -343,14 +349,21 @@ const makeBrowserTag = (
     insertMarker,
     insertRules,
     removeRules,
+    sealed: false,
     styleTag: el,
     toElement: wrapAsElement(css, names),
     toHTML: wrapAsHtmlTag(css, names),
   }
 }
 
-const makeServerTagInternal = (namesArg?: any, markersArg?: any): Tag<[string]> => {
-  const names = namesArg === undefined ? Object.create(null) : namesArg
+// @note - updated in 4.0.0-beta.1-5
+// seems very very wrong
+// const makeServerTag = (): Tag<[string]> => makeServerTagInternal()
+
+const makeServerTag = (namesArg?: any, markersArg?: any): Tag<[string]> => {
+  const names =
+    namesArg === undefined ? Object.create(null) : namesArg
+
   const markers = markersArg === undefined ? Object.create(null) : markersArg
 
   const insertMarker = id => {
@@ -398,7 +411,7 @@ const makeServerTagInternal = (namesArg?: any, markersArg?: any): Tag<[string]> 
       markersClone[id] = [markers[id][0]]
     }
 
-    return makeServerTagInternal(namesClone, markersClone)
+    return makeServerTag(namesClone, markersClone)
   }
 
   const tag = {
@@ -409,6 +422,7 @@ const makeServerTagInternal = (namesArg?: any, markersArg?: any): Tag<[string]> 
     insertMarker,
     insertRules,
     removeRules,
+    sealed: false,
     styleTag: null,
     toElement: wrapAsElement(css, names),
     toHTML: wrapAsHtmlTag(css, names),
@@ -416,9 +430,6 @@ const makeServerTagInternal = (namesArg?: any, markersArg?: any): Tag<[string]> 
 
   return tag
 }
-
-// seems vcery very wrong
-const makeServerTag = (): Tag<[string]> => makeServerTagInternal()
 
 export const makeTag = (
   target: HTMLElement,
@@ -471,7 +482,8 @@ export const makeRehydrationTag = (
 
   return {
     ...tag,
-    /* add rehydration hook to insertion methods */
+
+    /* add rehydration hook to methods */
     insertMarker: id => {
       rehydrate()
       return tag.insertMarker(id)

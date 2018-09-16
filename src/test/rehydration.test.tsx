@@ -2,27 +2,11 @@
 import React from 'react'
 import TestRenderer from 'react-test-renderer'
 
-import {
-  resetStyled,
-  expectCSSMatches,
-  seedNextClassnames,
-  resetCreateGlobalStyle,
-} from './utils'
-
-import _createGlobalStyle from '../constructors/createGlobalStyle'
-import stringifyRules from '../utils/stringifyRules'
-import css from '../constructors/css'
-import _keyframes from '../constructors/keyframes'
+import { resetStyled, expectCSSMatches, seedNextClassnames } from './utils'
+import createGlobalStyle from '../constructors/createGlobalStyle'
+import keyframes from '../constructors/keyframes'
 import StyleSheet from '../models/StyleSheet'
 import { SC_ATTR, SC_VERSION_ATTR } from '../constants'
-
-const keyframes = _keyframes(
-  hash => `keyframe_${hash % 1000}`,
-  stringifyRules,
-  css
-)
-
-let createGlobalStyle
 
 const getStyleTags = () =>
   Array.from(document.querySelectorAll('style')).map(el => ({
@@ -37,7 +21,6 @@ describe('rehydration', () => {
    */
   beforeEach(() => {
     styled = resetStyled()
-    createGlobalStyle = resetCreateGlobalStyle()
   })
 
   describe('with existing styled components', () => {
@@ -325,9 +308,6 @@ describe('rehydration', () => {
       `)
     })
 
-    // TODO: We need this test to run before we release 4.0 to the public
-    // Skipping this test for now, because a fix to StyleTags is needed
-    // which is being worked on
     it('should not change styles if rendered in the same order they were created with', () => {
       const Component1 = createGlobalStyle`
         html { font-size: 16px; }
@@ -354,9 +334,6 @@ describe('rehydration', () => {
       `)
     })
 
-    // TODO: We need this test to run before we release 4.0 to the public
-    // Skipping this test for now, because a fix to StyleTags is needed
-    // which is being worked on
     it('should still not change styles if rendered in a different order', () => {
       const B = styled.div.withConfig({ componentId: 'TWO' })`
         color: red;
@@ -402,6 +379,8 @@ describe('rehydration', () => {
     })
 
     it('should not regenerate keyframes', () => {
+      seedNextClassnames(['keyframe_880'])
+
       const fadeIn = keyframes`
         from { opacity: 0; }
       `
@@ -418,6 +397,8 @@ describe('rehydration', () => {
     })
 
     it('should still inject new keyframes', () => {
+      seedNextClassnames(['keyframe_144'])
+
       const fadeOut = keyframes`
         from { opacity: 1; }
       `
@@ -435,14 +416,16 @@ describe('rehydration', () => {
     })
 
     it('should pass the keyframes name along as well', () => {
+      seedNextClassnames(['keyframe_880', 'keyframe_144'])
+
       const fadeIn = keyframes`
         from { opacity: 0; }
       `
-      const A = styled.div`
-        animation: ${fadeIn} 1s both;
-      `
       const fadeOut = keyframes`
         from { opacity: 1; }
+      `
+      const A = styled.div`
+        animation: ${fadeIn} 1s both;
       `
       const B = styled.div`
         animation: ${fadeOut} 1s both;
@@ -460,14 +443,16 @@ describe('rehydration', () => {
     })
 
     it('should pass the keyframes name through props along as well', () => {
+      seedNextClassnames(['keyframe_880', 'keyframe_144'])
+
       const fadeIn = keyframes`
         from { opacity: 0; }
       `
-      const A = styled.div`
-        animation: ${props => props.animation} 1s both;
-      `
       const fadeOut = keyframes`
         from { opacity: 1; }
+      `
+      const A = styled.div`
+        animation: ${props => props.animation} 1s both;
       `
       const B = styled.div`
         animation: ${props => props.animation} 1s both;

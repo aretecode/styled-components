@@ -3,6 +3,7 @@ import React, { createContext, Component } from 'react'
 import { ReactElement as Element } from 'react'
 import memoize from 'memoize-one'
 import StyledError from '../utils/error'
+import isFunction from '../utils/isFunction'
 
 export type Theme = { [key: string]: any }
 
@@ -10,8 +11,6 @@ type Props = {
   children?: Element<any>
   theme: Theme | ((outerTheme: Theme) => void)
 }
-
-const isFunction = test => typeof test === 'function'
 
 const ThemeContext = createContext()
 

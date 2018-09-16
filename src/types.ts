@@ -16,8 +16,21 @@ export type Styles =
   | Object
   | ((executionContext: Object) => Interpolation)
 
-/* eslint-disable no-undef */
-export type Target = string | ComponentType<any>
+export type StyledComponentTarget = {
+  styledComponentId?: string
+}
+// @todo need to copy this type in where Target is StyledComponnt
+export type Target = string | ComponentType<any> | StyledComponentTarget
+
+export type ConstructWithOptionsOptions = {
+  attrs?: { [key: string]: any }
+  [key: string]: any
+}
+export interface ConstructWithOptionsTemplateFunction extends Function {
+  (...args: any[]): any
+  withConfig(config: any): any
+  attrs(attrs?: any): any
+}
 
 export type NameGenerator = (hash: number) => string
 
@@ -26,7 +39,7 @@ export type CSSConstructor = (
   ...interpolations: Array<Interpolation>
 ) => RuleSet
 export type StyleSheet = {
-  create: Function,
+  create: Function
 }
 
 export type Flattener = (

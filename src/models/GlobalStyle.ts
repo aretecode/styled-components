@@ -1,45 +1,43 @@
 // @flow
-import { RuleSet, Stringifier } from '../types'
 import flatten from '../utils/flatten'
 import isStaticRules from '../utils/isStaticRules'
+import stringifyRules from '../utils/stringifyRules'
 import StyleSheet from './StyleSheet'
 
-export default (ComponentStyle: Function, stringifyRules: Stringifier) => {
-  class GlobalStyle {
-    rules: RuleSet
-    componentId: string
-    isStatic: boolean
+import { RuleSet } from '../types'
 
-    constructor(rules: RuleSet, componentId: string) {
-      this.rules = rules
-      this.componentId = componentId
-      this.isStatic = isStaticRules(rules)
+export default class GlobalStyle {
+  componentId: string
+  isStatic: boolean
+  rules: RuleSet
 
-      if (!StyleSheet.master.hasId(componentId)) {
-        StyleSheet.master.deferredInject(componentId, [])
-      }
-    }
+  constructor(rules: RuleSet, componentId: string) {
+    this.rules = rules
+    this.componentId = componentId
+    this.isStatic = isStaticRules(rules)
 
-    createStyles(executionContext: Object, styleSheet: StyleSheet) {
-      const flatCSS = flatten(this.rules, executionContext)
-      const css = stringifyRules(flatCSS, '')
-      // TODO: We will need to figure out how to do this before 4.0
-      // const name = ComponentStyle.generateName(this.componentId + css)
-      styleSheet.inject(this.componentId, css)
-    }
-
-    renderStyles(executionContext: Object, styleSheet: StyleSheet) {
-      this.removeStyles(styleSheet)
-      this.createStyles(executionContext, styleSheet)
-    }
-
-    removeStyles(styleSheet: StyleSheet) {
-      const { componentId } = this
-      if (styleSheet.hasId(componentId)) {
-        styleSheet.remove(componentId)
-      }
+    if (!StyleSheet.master.hasId(componentId)) {
+      StyleSheet.master.deferredInject(componentId, [])
     }
   }
 
-  return GlobalStyle
+  createStyles(executionContext: Object, styleSheet: StyleSheet) {
+    const flatCSS = flatten(this.rules, executionContext)
+    const css = stringifyRules(flatCSS, '')
+
+    styleSheet.inject(this.componentId, css)
+  }
+
+  removeStyles(styleSheet: StyleSheet) {
+    const { componentId } = this
+    if (styleSheet.hasId(componentId)) {
+      styleSheet.remove(componentId)
+    }
+  }
+
+  // TODO: overwrite in-place instead of remove+create?
+  renderStyles(executionContext: Object, styleSheet: StyleSheet) {
+    this.removeStyles(styleSheet)
+    this.createStyles(executionContext, styleSheet)
+  }
 }

@@ -1,21 +1,15 @@
 // @flow
 
 /* Import singletons */
-import flatten from './utils/flatten'
-import stringifyRules from './utils/stringifyRules'
 import isStyledComponent from './utils/isStyledComponent'
-import generateAlphabeticName from './utils/generateAlphabeticName'
 import css from './constructors/css'
-import _ComponentStyle from './models/ComponentStyle'
+import createGlobalStyle from './constructors/createGlobalStyle'
+import keyframes from './constructors/keyframes'
 import ServerStyleSheet from './models/ServerStyleSheet'
 import StyleSheetManager from './models/StyleSheetManager'
 
-/* Import singleton constructors */
-import _keyframes from './constructors/keyframes'
-import _createGlobalStyle from './constructors/createGlobalStyle'
-
 /* Import components */
-import ThemeProvider from './models/ThemeProvider'
+import ThemeProvider, { ThemeConsumer } from './models/ThemeProvider'
 
 /* Import Higher Order Components */
 import withTheme from './hoc/withTheme'
@@ -60,26 +54,7 @@ if (
   window['__styled-components-init__'] += 1
 }
 
-/* Instantiate internal singletons */
-const ComponentStyle = _ComponentStyle(
-  generateAlphabeticName,
-  flatten,
-  stringifyRules
-)
-
-/* Instantiate exported singletons */
-const keyframes = _keyframes(generateAlphabeticName, stringifyRules, css)
-
-/**
- * @todo @@fixme
- */
-const createGlobalStyle = _createGlobalStyle(
-  ComponentStyle,
-  stringifyRules,
-  css
-)
 /* Export everything */
-
 export * from './secretInternals'
 export {
   css,
@@ -87,6 +62,7 @@ export {
   // _createGlobalStyle,
   createGlobalStyle,
   isStyledComponent,
+  ThemeConsumer,
   ThemeProvider,
   withTheme,
   ServerStyleSheet,

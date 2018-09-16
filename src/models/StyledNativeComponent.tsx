@@ -1,9 +1,10 @@
 // @flow
 import hoist from 'hoist-non-react-statics'
-import React, { Component, createElement } from 'react'
+import React, { createElement, PureComponent, ComponentType } from 'react'
 import determineTheme from '../utils/determineTheme'
 import { EMPTY_OBJECT } from '../utils/empties'
 import generateDisplayName from '../utils/generateDisplayName'
+import isFunction from '../utils/isFunction'
 import isTag from '../utils/isTag'
 import isDerivedReactComponent from '../utils/isDerivedReactComponent'
 import isStyledComponent from '../utils/isStyledComponent'
@@ -20,9 +21,20 @@ const warnInnerRef = once(() =>
   )
 )
 
+export interface BaseStyledNativeComponentRoot {
+  setNativeProps(args: any): void
+  [key: string]: any
+}
+export interface NativeComponentOptions {
+  attrs: any
+  displayName?: string
+  ParentComponent?: ComponentType
+  [key: string]: any
+}
+
 // $FlowFixMe
-class BaseStyledNativeComponent extends Component<any, any> {
-  root: Object
+class BaseStyledNativeComponent extends PureComponent<any, any> {
+  root?: BaseStyledNativeComponentRoot
 
   attrs = {}
 
@@ -85,7 +97,7 @@ class BaseStyledNativeComponent extends Component<any, any> {
       attr = attrs[key]
 
       this.attrs[key] =
-        typeof attr === 'function' &&
+        isFunction(attr) &&
         !isDerivedReactComponent(attr) &&
         !isStyledComponent(attr)
           ? attr(context)
@@ -124,7 +136,7 @@ class BaseStyledNativeComponent extends Component<any, any> {
 export default (InlineStyle: Function) => {
   const createStyledNativeComponent = (
     target: Target,
-    options: Object,
+    options: NativeComponentOptions,
     rules: RuleSet
   ) => {
     const {
