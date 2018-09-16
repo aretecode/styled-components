@@ -49,7 +49,7 @@ stylisSplitter.use([parseRulesPlugin, returnRulesPlugin])
 const stringifyRules = (
   rules: Array<Interpolation>,
   selector: string,
-  prefix: string
+  prefix?: string
 ): Array<string> => {
   const flatCSS = rules.join('').replace(COMMENT_REGEX, '') // replace JS comments
 

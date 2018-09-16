@@ -1,7 +1,7 @@
 // @flow
 
 /**
- * inlined version of
+ * @file inlined version of
  * https://github.com/facebook/fbjs/blob/master/packages/fbjs/src/core/hyphenateStyleName.js
  */
 
@@ -20,9 +20,6 @@ const msPattern = /^ms-/
  *
  * As Modernizr suggests (http://modernizr.com/docs/#prefixed), an `ms` prefix
  * is converted to `-ms-`.
- *
- * @param {string} string
- * @return {string}
  */
 export default function hyphenateStyleName(string: string): string {
   return string
