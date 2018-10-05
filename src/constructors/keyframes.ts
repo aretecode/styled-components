@@ -4,18 +4,28 @@ import generateAlphabeticName from '../utils/generateAlphabeticName'
 import stringifyRules from '../utils/stringifyRules'
 import hashStr from '../vendor/glamor/hash'
 import Keyframes from '../models/Keyframes'
-import { Interpolation } from '../types'
+import { Interpolation, Styles } from '../types'
 
 const replaceWhitespace = (str: string): string => str.replace(/\s|\\n/g, '')
 
 export default function keyframes(
-  strings: Array<string>,
+  strings: Styles,
   ...interpolations: Array<Interpolation>
 ): Keyframes {
-  const rules = css(strings, interpolations)
-  const name = generateAlphabeticName(
-    hashStr(replaceWhitespace(JSON.stringify(rules)))
-  )
+  /* Warning if you've used keyframes on React Native */
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    typeof navigator !== 'undefined' &&
+    navigator.product === 'ReactNative'
+  ) {
+    console.warn(
+      '`keyframes` cannot be used on ReactNative, only on the web. To do animation in ReactNative please use Animated.'
+    )
+  }
+
+  const rules = css(strings, ...interpolations)
+
+  const name = generateAlphabeticName(hashStr(replaceWhitespace(JSON.stringify(rules))))
 
   return new Keyframes(name, stringifyRules(rules, name, '@keyframes'))
 }

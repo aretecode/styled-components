@@ -8,7 +8,9 @@ import { RuleSet } from '../types'
 
 export default class GlobalStyle {
   componentId: string
+
   isStatic: boolean
+
   rules: RuleSet
 
   constructor(rules: RuleSet, componentId: string) {
@@ -22,7 +24,7 @@ export default class GlobalStyle {
   }
 
   createStyles(executionContext: Object, styleSheet: StyleSheet) {
-    const flatCSS = flatten(this.rules, executionContext)
+    const flatCSS = flatten(this.rules, executionContext, styleSheet)
     const css = stringifyRules(flatCSS, '')
 
     styleSheet.inject(this.componentId, css)

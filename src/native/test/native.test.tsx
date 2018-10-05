@@ -112,15 +112,11 @@ describe('native', () => {
 
     const wrapper = TestRenderer.create(<Comp opacity={0.5} />)
 
-    expect(wrapper.root.findByType('View').props.style).toEqual([
-      { paddingTop: 5, opacity: 0.5 },
-    ])
+    expect(wrapper.root.findByType('View').props.style).toEqual([{ paddingTop: 5, opacity: 0.5 }])
 
     wrapper.update(<Comp opacity={0.9} />)
 
-    expect(wrapper.root.findByType('View').props.style).toEqual([
-      { paddingTop: 5, opacity: 0.9 },
-    ])
+    expect(wrapper.root.findByType('View').props.style).toEqual([{ paddingTop: 5, opacity: 0.9 }])
   })
 
   describe('attrs', () => {
@@ -202,11 +198,56 @@ describe('native', () => {
         second: 'second',
       })
     })
+
+    it('should pass through children as a normal prop', () => {
+      const Comp = styled.Text.attrs({
+        children: 'Probably a bad idea',
+      })``
+
+      const wrapper = TestRenderer.create(<Comp />)
+      const text = wrapper.root.findByType('Text')
+
+      expect(text.props).toMatchObject({
+        children: 'Probably a bad idea',
+        style: [{}],
+      })
+    })
+
+    it('should pass through complex children as well', () => {
+      const Comp = styled.Text.attrs({
+        children: <Text>Probably a bad idea</Text>,
+      })``
+
+      const wrapper = TestRenderer.create(<Comp />)
+      const text = wrapper.root.findByType('Text')
+
+      expect(text.props).toMatchObject({
+        children: <Text>Probably a bad idea</Text>,
+        style: [{}],
+      })
+    })
+
+    it('should override children of course', () => {
+      const Comp = styled.Text.attrs({
+        children: <Text>Amazing</Text>,
+      })``
+
+      const wrapper = TestRenderer.create(<Comp>Something else</Comp>)
+      const text = wrapper.root.findByType('Text')
+
+      expect(text.props).toMatchObject({
+        children: 'Something else',
+        style: [{}],
+      })
+    })
   })
 
   describe('expanded API', () => {
     it('should attach a displayName', () => {
-      const Comp = styled.View``
+      View.displayName = 'View'
+
+      const Comp = styled(View)``
+
       expect(Comp.displayName).toBe('Styled(View)')
 
       const CompTwo = styled.View.withConfig({ displayName: 'Test' })``

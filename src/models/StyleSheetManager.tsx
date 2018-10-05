@@ -12,7 +12,7 @@ type Props = {
   target?: HTMLElement
 }
 
-const StyleSheetContext = createContext()
+const StyleSheetContext = createContext({})
 
 export const StyleSheetConsumer = StyleSheetContext.Consumer
 
@@ -34,7 +34,7 @@ export default class StyleSheetManager extends Component<Props> {
   }
 
   // getContext: (sheet: StyleSheet, target: HTMLElement) => StyleSheet
-  getContext(sheet: StyleSheet, target: HTMLElement) {
+  getContext(sheet?: StyleSheet, target?: HTMLElement): StyleSheet {
     if (sheet) {
       return sheet
     } else if (target) {

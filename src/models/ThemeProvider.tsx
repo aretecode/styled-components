@@ -58,12 +58,12 @@ export default class ThemeProvider extends Component<Props> {
       const mergedTheme = theme(outerTheme)
 
       if (
-        (process.env.NODE_ENV !== 'production' && mergedTheme === null) ||
-        Array.isArray(mergedTheme) ||
-        typeof mergedTheme !== 'object'
+        process.env.NODE_ENV !== 'production' &&
+        (mergedTheme === null || Array.isArray(mergedTheme) || typeof mergedTheme !== 'object')
       ) {
         throw new StyledError(7)
       }
+
       return mergedTheme
     }
 
@@ -71,10 +71,10 @@ export default class ThemeProvider extends Component<Props> {
       throw new StyledError(8)
     }
 
-    return { ...outerTheme, ...(theme as object) }
+    return { ...outerTheme, ...(theme as any) }
   }
 
-  getContext(theme: (outerTheme: Theme) => void, outerTheme?: Theme) {
+  getContext(theme: (outerTheme?: Theme) => void, outerTheme?: Theme) {
     return this.getTheme(theme, outerTheme)
   }
 }

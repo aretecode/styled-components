@@ -9,9 +9,7 @@ import { IS_BROWSER } from '../constants'
 import { RuleSet } from '../types'
 
 const isHMREnabled =
-  process.env.NODE_ENV !== 'production' &&
-  typeof module !== 'undefined' &&
-  (module as any).hot
+  process.env.NODE_ENV !== 'production' && typeof module !== 'undefined' && (module as any).hot
 
 /* combines hashStr (murmurhash) and nameGenerator for convenience */
 const hasher = (str: string): string => generateAlphabeticName(hashStr(str))
@@ -32,8 +30,7 @@ export default class ComponentStyle {
     this.componentId = componentId
 
     if (!StyleSheet.master.hasId(componentId)) {
-      const placeholder =
-        process.env.NODE_ENV !== 'production' ? [`.${componentId} {}`] : []
+      const placeholder = process.env.NODE_ENV !== 'production' ? [`.${componentId} {}`] : []
 
       StyleSheet.master.deferredInject(componentId, placeholder)
     }
@@ -58,11 +55,7 @@ export default class ComponentStyle {
     const flatCSS = flatten(this.rules, executionContext, styleSheet)
     const name = hasher(this.componentId + flatCSS.join(''))
     if (!styleSheet.hasNameForId(componentId, name)) {
-      styleSheet.inject(
-        this.componentId,
-        stringifyRules(flatCSS, `.${name}`),
-        name
-      )
+      styleSheet.inject(this.componentId, stringifyRules(flatCSS, `.${name}`), name)
     }
 
     this.lastClassName = name

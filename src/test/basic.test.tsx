@@ -1,10 +1,7 @@
 // @flow
 import React, { Component, StrictMode } from 'react'
 import { findDOMNode } from 'react-dom'
-import {
-  findRenderedComponentWithType,
-  renderIntoDocument,
-} from 'react-dom/test-utils'
+import { findRenderedComponentWithType, renderIntoDocument } from 'react-dom/test-utils'
 import TestRenderer from 'react-test-renderer'
 
 import { resetStyled, expectCSSMatches } from './utils'
@@ -153,9 +150,7 @@ describe('basic', () => {
       }
 
       const wrapper = TestRenderer.create(<Wrapper />)
-      expect(wrapper.root.findByType(InnerComponent).props.className).toBe(
-        'test sc-a b'
-      )
+      expect(wrapper.root.findByType(InnerComponent).props.className).toBe('test sc-a b')
     })
 
     it('should pass the ref to the component', () => {
@@ -201,10 +196,7 @@ describe('basic', () => {
       }
 
       const wrapper = renderIntoDocument(<Wrapper />)
-      const innerComponent = findRenderedComponentWithType(
-        wrapper,
-        InnerComponent
-      )
+      const innerComponent = findRenderedComponentWithType(wrapper, InnerComponent)
 
       expect(wrapper.testRef.current).toBe(innerComponent)
     })
@@ -234,9 +226,7 @@ describe('basic', () => {
       `
 
       TestRenderer.create(<Comp />)
-      expectCSSMatches(
-        '.sc-a{ } @media (min-width:500px){ .b > *{ color:pink; } } '
-      )
+      expectCSSMatches('.sc-a{ } @media (min-width:500px){ .b > *{ color:pink; } } ')
     })
 
     it('should hoist non-react static properties', () => {
@@ -252,13 +242,9 @@ describe('basic', () => {
       const InnerComponent = styled.div``
       const OuterComponent = styled(InnerComponent)``
 
-      expect(OuterComponent.styledComponentId).not.toBe(
-        InnerComponent.styledComponentId
-      )
+      expect(OuterComponent.styledComponentId).not.toBe(InnerComponent.styledComponentId)
 
-      expect(OuterComponent.componentStyle).not.toEqual(
-        InnerComponent.componentStyle
-      )
+      expect(OuterComponent.componentStyle).not.toEqual(InnerComponent.componentStyle)
     })
 
     it('generates unique classnames when not using babel', () => {

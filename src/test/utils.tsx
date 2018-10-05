@@ -16,14 +16,10 @@ jest.mock('../utils/generateAlphabeticName', () => input => {
   const seed = mockSeededClasses.shift()
   if (seed) return seed
 
-  return (
-    mockInputs[input] ||
-    (mockInputs[input] = String.fromCodePoint(97 + mockIndex++))
-  )
+  return mockInputs[input] || (mockInputs[input] = String.fromCodePoint(97 + mockIndex++))
 })
 
-export const seedNextClassnames = (names: Array<string>) =>
-  (mockSeededClasses = names)
+export const seedNextClassnames = (names: Array<string>) => (mockSeededClasses = names)
 
 export const resetStyled = (isServer: boolean = false) => {
   if (!isServer) {

@@ -1,12 +1,6 @@
 // @flow
 import { cloneElement } from 'react'
-import {
-  IS_BROWSER,
-  DISABLE_SPEEDY,
-  SC_ATTR,
-  SC_VERSION_ATTR,
-  SC_STREAM_ATTR,
-} from '../constants'
+import { IS_BROWSER, DISABLE_SPEEDY, SC_ATTR, SC_VERSION_ATTR, SC_STREAM_ATTR } from '../constants'
 import { makeTag, makeRehydrationTag } from './StyleTags'
 // type
 import { Tag } from './StyleTags'
@@ -31,22 +25,32 @@ let master
 
 export default class StyleSheet {
   id: number
+
   forceServer: boolean
-  target: HTMLElement
+
+  target?: HTMLElement
+
   /* a map from ids to tags */
   tagMap: { [key: string]: Tag<any> }
+
   /* deferred rules for a given id */
   deferred: { [key: string]: string[] | void }
+
   /* this is used for not reinjecting rules via hasNameForId() */
   rehydratedNames: { [key: string]: boolean }
+
   /* when rules for an id are removed using remove() we have to ignore rehydratedNames for it */
   ignoreRehydratedNames: { [key: string]: boolean }
+
   /* a list of tags belonging to this StyleSheet */
   tags: Tag<any>[]
+
   /* a tag for import rules */
   importRuleTag: Tag<any>
+
   /* current capacity until a new tag must be created */
   capacity: number
+
   /* children (aka clones) of this StyleSheet inheriting all and future injections */
   clones: StyleSheet[]
 
@@ -147,7 +151,7 @@ export default class StyleSheet {
   }
 
   /* reset the internal "master" instance */
-  static reset(forceServer: boolean = false) {
+  static reset(forceServer?: boolean = false) {
     master = new StyleSheet(undefined, forceServer).rehydrate()
   }
 
@@ -189,17 +193,11 @@ export default class StyleSheet {
     })
   }
 
-  makeTag(tag: Tag<any>): Tag<any> {
+  makeTag(tag?: Tag<any>): Tag<any> {
     const lastEl = tag ? tag.styleTag : null
     const insertBefore = false
 
-    return makeTag(
-      this.target,
-      lastEl,
-      this.forceServer,
-      insertBefore,
-      this.getImportRuleTag
-    )
+    return makeTag(this.target, lastEl, this.forceServer, insertBefore, this.getImportRuleTag)
   }
 
   getImportRuleTag = (): Tag<any> => {
@@ -249,10 +247,7 @@ export default class StyleSheet {
   /* caching layer checking id+name to already have a corresponding tag and injected rules */
   hasNameForId(id: string, name: string) {
     /* exception for rehydrated names which are checked separately */
-    if (
-      this.ignoreRehydratedNames[id] === undefined &&
-      this.rehydratedNames[name]
-    ) {
+    if (this.ignoreRehydratedNames[id] === undefined && this.rehydratedNames[name]) {
       return true
     }
 

@@ -12,7 +12,9 @@ import StyleSheetManager from './StyleSheetManager'
 
 export default class ServerStyleSheet {
   instance: StyleSheet
+
   masterSheet: StyleSheet
+
   sealed: boolean
 
   constructor() {
@@ -40,9 +42,7 @@ export default class ServerStyleSheet {
       throw new StyledError(2)
     }
 
-    return (
-      <StyleSheetManager sheet={this.instance}>{children}</StyleSheetManager>
-    )
+    return <StyleSheetManager sheet={this.instance}>{children}</StyleSheetManager>
   }
 
   getStyleTags(): string {
@@ -59,8 +59,7 @@ export default class ServerStyleSheet {
     // @note moved here for test env
     const __SERVER__: boolean =
       typeof global === 'object' &&
-      (typeof (global as any).__SERVER__ !== 'undefined' ||
-        typeof window !== 'object')
+      (typeof (global as any).__SERVER__ !== 'undefined' || typeof window !== 'object')
 
     // if (!__SERVER__ || IS_BROWSER) {
     if (!__SERVER__) {

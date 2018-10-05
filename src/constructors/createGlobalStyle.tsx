@@ -27,10 +27,13 @@ export default function createGlobalStyle(
     styleSheet: Object
 
     static globalStyle = style
+
     static styledComponentId = id
 
     constructor() {
       super()
+
+      count += 1
 
       /**
        * This fixes HMR compatiblility. Don't ask me why, but this combination of
@@ -44,8 +47,6 @@ export default function createGlobalStyle(
     }
 
     componentDidMount() {
-      count += 1
-
       if (process.env.NODE_ENV !== 'production' && IS_BROWSER && count > 1) {
         console.warn(
           `The global style component ${
@@ -67,10 +68,7 @@ export default function createGlobalStyle(
     }
 
     render() {
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        React.Children.count(this.props.children)
-      ) {
+      if (process.env.NODE_ENV !== 'production' && React.Children.count(this.props.children)) {
         console.warn(
           `The global style component ${
             this.state.styledComponentId
@@ -86,10 +84,7 @@ export default function createGlobalStyle(
             const { globalStyle } = this.state
 
             if (globalStyle.isStatic) {
-              globalStyle.renderStyles(
-                STATIC_EXECUTION_CONTEXT,
-                this.styleSheet
-              )
+              globalStyle.renderStyles(STATIC_EXECUTION_CONTEXT, this.styleSheet)
 
               return null
             } else {
@@ -103,11 +98,7 @@ export default function createGlobalStyle(
                     }
 
                     if (typeof theme !== 'undefined') {
-                      context.theme = determineTheme(
-                        this.props,
-                        theme,
-                        defaultProps
-                      )
+                      context.theme = determineTheme(this.props, theme, defaultProps)
                     }
 
                     globalStyle.renderStyles(context, this.styleSheet)

@@ -1,7 +1,7 @@
-const { BABEL_ENV, NODE_ENV } = process.env
-const modules = BABEL_ENV === 'cjs' || NODE_ENV === 'test' ? 'commonjs' : false
+const { BABEL_ENV, NODE_ENV } = process.env;
+const modules = BABEL_ENV === 'cjs' || NODE_ENV === 'test' ? 'commonjs' : false;
 
-const loose = true
+const loose = true;
 
 // @todo add `self` etc on dev build
 module.exports = {

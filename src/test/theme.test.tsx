@@ -181,9 +181,7 @@ describe('theming', () => {
       </ThemeProvider>
     )
     expectCSSMatches(
-      `.sc-a {} .c { color:${theme.color}; } .sc-b {} .d { background:${
-        theme.color
-      }; }`
+      `.sc-a {} .c { color:${theme.color}; } .sc-b {} .d { background:${theme.color}; }`
     )
   })
 
@@ -334,9 +332,7 @@ describe('theming', () => {
     wrapper.update(Theme({ theme: newTheme }))
 
     expectCSSMatches(
-      `.sc-a {} .b { color:${originalTheme.color}; } .c { color:${
-        newTheme.color
-      }; }`
+      `.sc-a {} .b { color:${originalTheme.color}; } .c { color:${newTheme.color}; }`
     )
 
     expect(wrapper.root.findByType('div').props.className).toBe('sc-a c')
@@ -462,15 +458,12 @@ describe('theming', () => {
     const theme = { color: 'red' }
     const newTheme = { color: 'blue' }
 
-    let consoleWarn = console.warn
+    const consoleWarn = console.warn
 
     jest
       .spyOn(console, 'warn')
       .mockImplementation(
-        msg =>
-          !msg.includes('You are not using a ThemeProvider')
-            ? consoleWarn(msg)
-            : null
+        msg => (!msg.includes('You are not using a ThemeProvider') ? consoleWarn(msg) : null)
       )
 
     MyDivWithTheme.defaultProps = { theme }
@@ -520,9 +513,7 @@ describe('theming', () => {
     }).not.toThrow('plain object')
 
     expectCSSMatches(
-      `.sc-a {} .b {background-color:${theme.palette.white};color:${
-        theme.palette.black
-      };}`
+      `.sc-a {} .b {background-color:${theme.palette.white};color:${theme.palette.black};}`
     )
   })
 

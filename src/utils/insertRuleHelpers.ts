@@ -26,11 +26,7 @@ export const sheetForTag = (tag: HTMLStyleElement): CSSStyleSheet => {
 }
 
 /* insert a rule safely and return whether it was actually injected */
-export const safeInsertRule = (
-  sheet: CSSStyleSheet,
-  cssRule: string,
-  index: number
-): boolean => {
+export const safeInsertRule = (sheet: CSSStyleSheet, cssRule: string, index: number): boolean => {
   /* abort early if cssRule string is falsy */
   if (!cssRule) return false
 
@@ -68,11 +64,7 @@ export const safeInsertRules = (
 }
 
 /* deletes `size` rules starting from `removalIndex` */
-export const deleteRules = (
-  sheet: CSSStyleSheet,
-  removalIndex: number,
-  size: number
-) => {
+export const deleteRules = (sheet: CSSStyleSheet, removalIndex: number, size: number) => {
   const lowerBound = removalIndex - size
   for (let i = removalIndex; i > lowerBound; i -= 1) {
     sheet.deleteRule(i)

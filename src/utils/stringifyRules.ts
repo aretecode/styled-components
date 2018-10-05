@@ -53,13 +53,11 @@ const stringifyRules = (
 ): Array<string> => {
   const flatCSS = rules.join('').replace(COMMENT_REGEX, '') // replace JS comments
 
-  const cssStr =
-    selector && prefix ? `${prefix} ${selector} { ${flatCSS} }` : flatCSS
+  const cssStr = selector && prefix ? `${prefix} ${selector} { ${flatCSS} }` : flatCSS
 
   return stylis(prefix || !selector ? '' : selector, cssStr)
 }
 
-export const splitByRules = (css: string): Array<string> =>
-  stylisSplitter('', css)
+export const splitByRules = (css: string): Array<string> => stylisSplitter('', css)
 
 export default stringifyRules

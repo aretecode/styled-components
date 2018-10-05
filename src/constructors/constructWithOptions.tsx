@@ -8,7 +8,6 @@ import { isValidElementType } from 'react-is'
 import css from './css'
 import StyledError from '../utils/error'
 import { EMPTY_OBJECT } from '../utils/empties'
-
 import { Target, ConstructWithOptionsTemplateFunction, ConstructWithOptionsOptions } from '../types'
 
 export default function constructWithOptions(
@@ -22,13 +21,11 @@ export default function constructWithOptions(
 
   /* This is callable directly as a template function */
   // $FlowFixMe: Not typed to avoid destructuring arguments
-  const templateFunction = (...args) =>
-    componentConstructor(tag, options, css(...args))
+  const templateFunction = (...args) => componentConstructor(tag, options, css(...args))
 
   /* If config methods are called, wrap up a new template function and merge options */
   ;(templateFunction as ConstructWithOptionsTemplateFunction).withConfig = config =>
     constructWithOptions(componentConstructor, tag, { ...options, ...config })
-
   ;(templateFunction as ConstructWithOptionsTemplateFunction).attrs = attrs =>
     constructWithOptions(componentConstructor, tag, {
       ...options,

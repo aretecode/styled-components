@@ -1,5 +1,5 @@
 // @flow
-import hoist from 'hoist-non-react-statics'
+import hoist from '../utils/hoist'
 import React, { createElement, PureComponent, ComponentType } from 'react'
 import determineTheme from '../utils/determineTheme'
 import { EMPTY_OBJECT } from '../utils/empties'
@@ -56,15 +56,9 @@ class BaseStyledNativeComponent extends PureComponent<any, any> {
           let generatedStyles
           if (theme !== undefined) {
             const themeProp = determineTheme(this.props, theme, defaultProps)
-            generatedStyles = this.generateAndInjectStyles(
-              themeProp,
-              this.props
-            )
+            generatedStyles = this.generateAndInjectStyles(themeProp, this.props)
           } else {
-            generatedStyles = this.generateAndInjectStyles(
-              theme || EMPTY_OBJECT,
-              this.props
-            )
+            generatedStyles = this.generateAndInjectStyles(theme || EMPTY_OBJECT, this.props)
           }
 
           const propsForElement = {
@@ -97,9 +91,7 @@ class BaseStyledNativeComponent extends PureComponent<any, any> {
       attr = attrs[key]
 
       this.attrs[key] =
-        isFunction(attr) &&
-        !isDerivedReactComponent(attr) &&
-        !isStyledComponent(attr)
+        isFunction(attr) && !isDerivedReactComponent(attr) && !isStyledComponent(attr)
           ? attr(context)
           : attr
     }
@@ -111,11 +103,7 @@ class BaseStyledNativeComponent extends PureComponent<any, any> {
   generateAndInjectStyles(theme: any, props: any) {
     const { inlineStyle } = props.forwardedClass
 
-    const executionContext = this.buildExecutionContext(
-      theme,
-      props,
-      props.forwardedClass.attrs
-    )
+    const executionContext = this.buildExecutionContext(theme, props, props.forwardedClass.attrs)
 
     return inlineStyle.generateStyleObject(executionContext)
   }
@@ -142,16 +130,16 @@ export default (InlineStyle: Function) => {
     const {
       attrs,
       displayName = generateDisplayName(target),
-      ParentComponent = BaseStyledNativeComponent,
+      ParentComponent = StyledNativeComponent,
     } = options
 
     const isClass = !isTag(target)
     const isTargetStyledComp = isStyledComponent(target)
 
-    const StyledNativeComponent = React.forwardRef((props, ref) => (
+    const WrappedStyledNativeComponent = React.forwardRef((props, ref) => (
       <ParentComponent
         {...props}
-        forwardedClass={StyledNativeComponent}
+        forwardedClass={WrappedStyledNativeComponent}
         forwardedRef={ref}
       />
     ))
@@ -166,22 +154,25 @@ export default (InlineStyle: Function) => {
      */
 
     // $FlowFixMe
-    StyledNativeComponent.attrs = finalAttrs
+    WrappedStyledNativeComponent.attrs = finalAttrs
 
-    StyledNativeComponent.displayName = displayName
+    WrappedStyledNativeComponent.displayName = displayName
 
     // $FlowFixMe
-    StyledNativeComponent.inlineStyle = new InlineStyle(
+    WrappedStyledNativeComponent.inlineStyle = new InlineStyle(
       // $FlowFixMe
       isTargetStyledComp ? target.inlineStyle.rules.concat(rules) : rules
     )
 
     // $FlowFixMe
-    StyledNativeComponent.styledComponentId = 'StyledNativeComponent'
+    WrappedStyledNativeComponent.styledComponentId = 'StyledNativeComponent'
     // $FlowFixMe
-    StyledNativeComponent.target = isTargetStyledComp ? target.target : target
+    WrappedStyledNativeComponent.target = isTargetStyledComp
+      ? // $FlowFixMe
+        target.target
+      : target
     // $FlowFixMe
-    StyledNativeComponent.withComponent = function withComponent(tag: Target) {
+    WrappedStyledNativeComponent.withComponent = function withComponent(tag: Target) {
       const { displayName: _, componentId: __, ...optionsToCopy } = options
       const newOptions = {
         ...optionsToCopy,
@@ -194,7 +185,7 @@ export default (InlineStyle: Function) => {
 
     if (isClass) {
       // $FlowFixMe
-      hoist(StyledNativeComponent, target, {
+      hoist(WrappedStyledNativeComponent, target, {
         // all SC-specific things should not be hoisted
         attrs: true,
         displayName: true,
@@ -206,7 +197,7 @@ export default (InlineStyle: Function) => {
       })
     }
 
-    return StyledNativeComponent
+    return WrappedStyledNativeComponent
   }
 
   return createStyledNativeComponent

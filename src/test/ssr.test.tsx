@@ -2,6 +2,7 @@
 /**
  * @jest-environment node
  */
+// @flow
 import React from 'react'
 import { renderToString, renderToNodeStream } from 'react-dom/server'
 import ServerStyleSheet from '../models/ServerStyleSheet'
@@ -9,7 +10,7 @@ import { resetStyled, seedNextClassnames } from './utils'
 import keyframes from '../constructors/keyframes'
 import createGlobalStyle from '../constructors/createGlobalStyle'
 
-// jest.mock('../utils/nonce')
+jest.mock('../utils/nonce')
 
 let styled
 
@@ -31,9 +32,7 @@ describe('ssr', () => {
     `
 
     const sheet = new ServerStyleSheet()
-    const html = renderToString(
-      sheet.collectStyles(<Heading>Hello SSR!</Heading>)
-    )
+    const html = renderToString(sheet.collectStyles(<Heading>Hello SSR!</Heading>))
     const css = sheet.getStyleTags()
 
     expect(html).toMatchSnapshot()
@@ -347,7 +346,7 @@ describe('ssr', () => {
     const stream = sheet.interleaveWithNodeStream(renderToNodeStream(jsx))
 
     return new Promise((resolve, reject) => {
-      stream.on('data', function noop() {})
+      stream.on('data', () => {})
 
       stream.on('error', err => {
         expect(err).toMatchSnapshot()

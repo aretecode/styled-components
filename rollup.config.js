@@ -2,34 +2,34 @@
  * @file @todo need to fix `replace`
  */
 /* eslint-disable flowtype/require-valid-file-annotation, no-console, import/extensions */
-import nodeResolve from 'rollup-plugin-node-resolve'
-import replace from 'rollup-plugin-replace'
-import commonjs from 'rollup-plugin-commonjs'
-import babel from 'rollup-plugin-babel'
-import json from 'rollup-plugin-json'
-import flow from 'rollup-plugin-flow'
-import { terser } from 'rollup-plugin-terser'
-import sourceMaps from 'rollup-plugin-sourcemaps'
+import nodeResolve from 'rollup-plugin-node-resolve';
+import replace from 'rollup-plugin-replace';
+import commonjs from 'rollup-plugin-commonjs';
+import babel from 'rollup-plugin-babel';
+import json from 'rollup-plugin-json';
+import flow from 'rollup-plugin-flow';
+import { terser } from 'rollup-plugin-terser';
+import sourceMaps from 'rollup-plugin-sourcemaps';
 import typescript from 'rollup-plugin-typescript'
-import pkg from './package.json'
+import pkg from './package.json';
 
 // rollup-plugin-ignore stopped working, so we'll just remove the import lines 😐
-const propTypeIgnore = { "import PropTypes from 'prop-types';": "'';" }
-const streamIgnore = { "import stream from 'stream';": "'';" }
+const propTypeIgnore = { "import PropTypes from 'prop-types';": "'';" };
+const streamIgnore = { "import stream from 'stream';": "'';" };
 
 const cjs = {
   exports: 'named',
   format: 'cjs',
   sourcemap: true,
-}
+};
 
 const esm = {
   format: 'esm',
   sourcemap: true,
-}
+};
 
-const getCJS = override => ({ ...cjs, ...override })
-const getESM = override => ({ ...esm, ...override })
+const getCJS = override => ({ ...cjs, ...override });
+const getESM = override => ({ ...esm, ...override });
 
 const commonPlugins = [
   // flow({
@@ -48,15 +48,14 @@ const commonPlugins = [
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     ignoreGlobal: true,
     namedExports: {
-      'react-is': ['isValidElementType'],
+      'react-is': ['isValidElementType', 'ForwardRef'],
     },
   }),
   // replace({
-  //   // disable flag indicating a Jest run
-  //   // __DEV__: JSON.stringify(false),
+  //   __DEV__: JSON.stringify(false), // disable flag indicating a Jest run
   //   __VERSION__: JSON.stringify(pkg.version),
   // }),
-]
+];
 
 const prodPlugins = [
   // replace({
@@ -66,18 +65,17 @@ const prodPlugins = [
   terser({
     sourcemap: true,
   }),
-]
+];
 
 const configBase = {
   input: './src/index.ts',
 
   // \0 is rollup convention for generated in memory modules
-  external: id =>
-    !id.startsWith('\0') && !id.startsWith('.') && !id.startsWith('/'),
+  external: id => !id.startsWith('\0') && !id.startsWith('.') && !id.startsWith('/'),
   plugins: commonPlugins,
-}
+};
 
-const globals = { react: 'React' }
+const globals = { react: 'React' };
 
 const standaloneBaseConfig = {
   ...configBase,
@@ -97,7 +95,7 @@ const standaloneBaseConfig = {
     //   // __SERVER__: JSON.stringify(false),
     // })
   ),
-}
+};
 
 const standaloneConfig = {
   ...standaloneBaseConfig,
@@ -106,7 +104,7 @@ const standaloneConfig = {
     //   'process.env.NODE_ENV': JSON.stringify('development'),
     // })
   ),
-}
+};
 
 const standaloneProdConfig = {
   ...standaloneBaseConfig,
@@ -115,7 +113,7 @@ const standaloneProdConfig = {
     file: 'dist/styled-components.min.js',
   },
   plugins: standaloneBaseConfig.plugins.concat(prodPlugins),
-}
+};
 
 const serverConfig = {
   ...configBase,
@@ -128,7 +126,7 @@ const serverConfig = {
     //   // __SERVER__: JSON.stringify(true),
     // })
   ),
-}
+};
 
 const browserConfig = {
   ...configBase,
@@ -142,7 +140,7 @@ const browserConfig = {
     //   // __SERVER__: JSON.stringify(false),
     // })
   ),
-}
+};
 
 const nativeConfig = {
   ...configBase,
@@ -155,7 +153,7 @@ const nativeConfig = {
       file: 'native/dist/styled-components.native.esm.js',
     }),
   ],
-}
+};
 
 const primitivesConfig = {
   ...configBase,
@@ -171,7 +169,7 @@ const primitivesConfig = {
     //   // __SERVER__: JSON.stringify(true),
     // })
   ),
-}
+};
 
 export default [
   standaloneConfig,
@@ -180,4 +178,4 @@ export default [
   browserConfig,
   nativeConfig,
   primitivesConfig,
-]
+];

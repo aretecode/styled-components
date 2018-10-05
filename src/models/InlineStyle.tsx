@@ -15,8 +15,8 @@ export const resetStyleCache = () => {
 /**
  * InlineStyle takes arbitrary CSS and generates a flat object
  */
-export default (styleSheet: StyleSheet) => {
-  return class InlineStyle {
+export default (styleSheet: StyleSheet) =>
+  class InlineStyle {
     rules: RuleSet
 
     constructor(rules: RuleSet) {
@@ -25,7 +25,6 @@ export default (styleSheet: StyleSheet) => {
 
     generateStyleObject(executionContext: Object) {
       console.warn('this file has issues')
-
       const flatCSS = flatten(this.rules, executionContext).join('')
 
       const hash = hashStr(flatCSS)
@@ -35,14 +34,9 @@ export default (styleSheet: StyleSheet) => {
         root.each(node => {
           if (node.type === 'decl') {
             declPairs.push([node.prop, node.value])
-          } else if (
-            process.env.NODE_ENV !== 'production' &&
-            node.type !== 'comment'
-          ) {
+          } else if (process.env.NODE_ENV !== 'production' && node.type !== 'comment') {
             /* eslint-disable no-console */
-            console.warn(
-              `Node of type ${node.type} not supported as an inline style`
-            )
+            console.warn(`Node of type ${node.type} not supported as an inline style`)
           }
         })
         // RN currently does not support differing values for the corner radii of Image
@@ -63,4 +57,3 @@ export default (styleSheet: StyleSheet) => {
       return generated[hash]
     }
   }
-}

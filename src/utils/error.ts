@@ -4,10 +4,7 @@
  * @todo EMPTY_OBJ
  * Parse errors.md and turn it into a simple hash of code: message
  */
-const ERRORS =
-  process.env.NODE_ENV !== 'production'
-    ? require('./errorDevelopoment').default
-    : {}
+const ERRORS = process.env.NODE_ENV !== 'production' ? require('./errorDevelopoment').default : {}
 
 /**
  * super basic version of sprintf
@@ -37,9 +34,7 @@ export default class StyledComponentsError extends Error {
     if (process.env.NODE_ENV === 'production') {
       super(
         `An error occurred. See https://github.com/styled-components/styled-components/blob/master/src/utils/errors.md#${code} for more information. ${
-          interpolations
-            ? `Additional arguments: ${interpolations.join(', ')}`
-            : ''
+          interpolations ? `Additional arguments: ${interpolations.join(', ')}` : ''
         }`
       )
     } else {
