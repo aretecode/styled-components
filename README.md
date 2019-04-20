@@ -16,10 +16,11 @@
   <a href="#alternative-installation-methods"><img src="https://img.shields.io/badge/module%20formats-umd%2C%20cjs%2C%20esm-green.svg" alt="module formats: umd, cjs, esm"></a>
 </div>
 
-> If you are looking for styled-components v4.0 (under active development), check out the [roadmap](https://github.com/styled-components/styled-components/issues/1694) and [dev branch](https://github.com/styled-components/styled-components/tree/develop).
+<br />
+<br />
 
-<br />
-<br />
+> ⚠️ **CANARY:** This is the `canary` branch of `styled-components`. It is published under the
+> `@canary` tag on npm and contains new features and changes for the next major version.
 
 Utilising [tagged template literals](https://www.styled-components.com/docs/advanced#tagged-template-literals) (a recent addition to JavaScript) and the [power of CSS](https://www.styled-components.com/docs/api#supported-css), `styled-components` allows you to write actual CSS code to style your components. It also removes the mapping between components and styles – using components as a low-level styling construct could not be easier!
 
@@ -33,11 +34,11 @@ _Supported by [Front End Center](https://frontend.center). Thank you for making 
 
 Quicklinks to some of the most-visited pages:
 
-* [**Getting started**](https://www.styled-components.com/docs/basics)
-* [API Reference](https://styled-components.com/docs/api)
-* [Theming](https://www.styled-components.com/docs/advanced#theming)
-* [Server-side rendering](https://www.styled-components.com/docs/advanced#server-side-rendering)
-* [Tagged Template Literals explained](https://www.styled-components.com/docs/advanced#tagged-template-literals)
+- [**Getting started**](https://www.styled-components.com/docs/basics)
+- [API Reference](https://styled-components.com/docs/api)
+- [Theming](https://www.styled-components.com/docs/advanced#theming)
+- [Server-side rendering](https://www.styled-components.com/docs/advanced#server-side-rendering)
+- [Tagged Template Literals explained](https://www.styled-components.com/docs/advanced#tagged-template-literals)
 
 ## Example
 
@@ -75,6 +76,23 @@ This is what you'll see in your browser:
     <img alt="Screenshot of the above code ran in a browser" src="http://i.imgur.com/wUJpcjY.jpg" />
   </a>
 </div>
+
+## Babel Macro
+
+If you're using tooling that has babel-plugin-macros set up, you can switch to the `styled-components/macro` import path instead to gain the effects of the babel plugin without further setup.
+
+```js
+import styled from 'styled-components/macro';
+
+// A static className will be generated for Title (important for SSR)
+const Title = styled.h1`
+  font-size: 1.5em;
+  text-align: center;
+  color: palevioletred;
+`;
+```
+
+If you wish to provide configuration options to the babel plugin similar to how you would in a `.babelrc`, [see this guide](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/author.md#config-experimental). The config name is `"styledComponents"`.
 
 ## Built with `styled-components`
 
