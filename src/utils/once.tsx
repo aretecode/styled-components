@@ -1,11 +1,11 @@
+// @flow
 /**
  * @todo dedupe
  * @fileoverview Helper to call a given function, only once
  */
-declare function toVoid(): void
-
-// export default (onDone: toVoid): toVoid => {
-export default (onDone: () => void): (() => void) => {
+export type OnceDoneCallback = () => void
+export type ToVoid = () => void
+export default (onDone: OnceDoneCallback): ToVoid => {
   let called = false
 
   return () => {

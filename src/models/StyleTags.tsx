@@ -5,12 +5,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable flowtype/object-type-delimiter */
 /* eslint-disable react/prop-types */
-import React from 'react'
-import { ReactElement } from 'react'
-import { IS_BROWSER, DISABLE_SPEEDY, SC_ATTR } from '../constants'
-//
+
+import React, { ReactElement } from 'react'
+import {
+  IS_BROWSER,
+  DISABLE_SPEEDY,
+  SC_ATTR,
+  SC_VERSION_ATTR,
+} from '../constants'
 import { ExtractedComp } from '../utils/extractCompsFromCSS'
-//
 import { splitByRules } from '../utils/stringifyRules'
 import getNonce from '../utils/nonce'
 import once from '../utils/once'
@@ -33,7 +36,8 @@ import {
   deleteRules,
 } from '../utils/insertRuleHelpers'
 
-type fromAnyToString = (...x: any[]) => string
+// var __VERSION__: string
+
 export interface Tag<T> {
   // $FlowFixMe: Doesn't seem to accept any combination w/ HTMLStyleElement for some reason
   styleTag: HTMLStyleElement | null
@@ -75,6 +79,7 @@ const makeStyleTag = (
   const el = document.createElement('style')
   // el.type = 'text/css'
   el.setAttribute(SC_ATTR, '')
+  el.setAttribute(SC_VERSION_ATTR, __VERSION__)
 
   /**
    * @todo should come as prop
@@ -110,6 +115,7 @@ const wrapAsHtmlTag = (css: () => string, names: Names) => (
   const attrs = [
     nonce && `nonce="${nonce}"`,
     `${SC_ATTR}="${stringifyNames(names)}"`,
+    `${SC_VERSION_ATTR}="${__VERSION__}"`,
     additionalAttrs,
   ]
 
@@ -123,6 +129,7 @@ const wrapAsElement = (css: () => string, names: Names) => () => {
   const props = {
     // type: 'text/css',
     [SC_ATTR]: stringifyNames(names),
+    [SC_VERSION_ATTR]: __VERSION__,
   }
 
   const nonce = getNonce()
@@ -262,7 +269,7 @@ const makeBrowserTag = (
   const extractImport = getImportRuleTag !== undefined
 
   /* indicates whther getImportRuleTag was called */
-  const usedImportRuleTag = false
+  let usedImportRuleTag = false
 
   const insertMarker = id => {
     const prev = markers[id]
@@ -326,7 +333,6 @@ const makeBrowserTag = (
     }
     return str
   }
-
   return {
     clone() {
       throw new StyledError(5)
@@ -343,7 +349,7 @@ const makeBrowserTag = (
   }
 }
 
-const makeServerTagInternal = (namesArg, markersArg): Tag<[string]> => {
+const makeServerTagInternal = (namesArg?: any, markersArg?: any): Tag<[string]> => {
   const names = namesArg === undefined ? Object.create(null) : namesArg
   const markers = markersArg === undefined ? Object.create(null) : markersArg
 
@@ -470,9 +476,15 @@ export const makeRehydrationTag = (
       rehydrate()
       return tag.insertMarker(id)
     },
+
     insertRules: (id, cssRules, name) => {
       rehydrate()
       return tag.insertRules(id, cssRules, name)
+    },
+
+    removeRules: id => {
+      rehydrate()
+      return tag.removeRules(id)
     },
   }
 }

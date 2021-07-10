@@ -4,12 +4,15 @@ import {
   IS_BROWSER,
   DISABLE_SPEEDY,
   SC_ATTR,
+  SC_VERSION_ATTR,
   SC_STREAM_ATTR,
 } from '../constants'
 import { makeTag, makeRehydrationTag } from './StyleTags'
 // type
 import { Tag } from './StyleTags'
 import extractComps from '../utils/extractCompsFromCSS'
+
+// let __VERSION__: string
 
 const SPLIT_REGEX = /\s+/
 
@@ -30,7 +33,7 @@ export default class StyleSheet {
   id: number
   sealed: boolean
   forceServer: boolean
-  target: ?HTMLElement
+  target: HTMLElement
   /* a map from ids to tags */
   tagMap: { [key: string]: Tag<any> }
   /* deferred rules for a given id */
@@ -50,7 +53,7 @@ export default class StyleSheet {
 
   constructor(
     target: HTMLElement = IS_BROWSER ? document.head : null,
-    forceServer?: boolean = false
+    forceServer: boolean = false
   ) {
     sheetRunningId += 1
     this.id = sheetRunningId
@@ -71,14 +74,15 @@ export default class StyleSheet {
     if (!IS_BROWSER || this.forceServer) {
       return this
     }
-
     const els = []
     const names = []
     const extracted = []
     let isStreamed = false
 
     /* retrieve all of our SSR style elements from the DOM */
-    const nodes = document.querySelectorAll(`style[${SC_ATTR}]`)
+    const nodes = document.querySelectorAll(
+      `style[${SC_ATTR}][${SC_VERSION_ATTR}="${__VERSION__}"]`
+    )
     const nodesSize = nodes.length
 
     /* abort rehydration if no previous style tags were found */
@@ -88,7 +92,7 @@ export default class StyleSheet {
 
     for (let i = 0; i < nodesSize; i += 1) {
       // $FlowFixMe: We can trust that all elements in this query are style elements
-      const el = (nodes[i] as HTMLStyleElement)
+      const el = nodes[i] as HTMLStyleElement
 
       /* check if style tag is a streamed tag */
       if (!isStreamed) isStreamed = !!el.getAttribute(SC_STREAM_ATTR)
@@ -133,7 +137,7 @@ export default class StyleSheet {
   }
 
   /* retrieve a "master" instance of StyleSheet which is typically used when no other is available
-   * The master StyleSheet is targeted by injectGlobal, keyframes, and components outside of any
+   * The master StyleSheet is targeted by createGlobalStyle, keyframes, and components outside of any
     * StyleSheetManager's context */
   static get master(): StyleSheet {
     return master || (master = new StyleSheet().rehydrate())
@@ -234,7 +238,7 @@ export default class StyleSheet {
     return (this.tagMap[id] = tag)
   }
 
-  /* mainly for injectGlobal to check for its id */
+  /* mainly for createGlobalStyle to check for its id */
   hasId(id: string) {
     return this.tagMap[id] !== undefined
   }
@@ -275,7 +279,6 @@ export default class StyleSheet {
     }
 
     const tag = this.getTagForId(id)
-
     /* add deferred rules for component */
     if (this.deferred[id] !== undefined) {
       // Combine passed cssRules with previously deferred CSS rules

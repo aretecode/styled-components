@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`with styles should throw a meaningful error if a non styled component with react element is interpolated 1`] = `"shallow is not defined"`;

@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import { shallow } from 'enzyme'
+import TestRenderer from 'react-test-renderer'
 
 import { resetStyled, expectCSSMatches } from './utils'
 
@@ -25,8 +25,8 @@ describe('extending', () => {
         font-weight: bold;
       }
     `
-    shallow(<Inner/>)
-    shallow(<Outer/>)
+    TestRenderer.create(<Inner />)
+    TestRenderer.create(<Outer />)
     expectCSSMatches(`
       .sc-a {}
       .c { color:blue; font-weight:light; }

@@ -1,4 +1,5 @@
 // @flow
+const webpack = require('webpack')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const path = require('path')
 
@@ -21,7 +22,7 @@ module.exports = {
           'style-loader',
           {
             loader: 'css-loader',
-            options: { module: true, localIdentName: '[hash:base64:8]' },
+            options: { modules: true, localIdentName: '[hash:base64:8]' },
           },
         ],
       },
@@ -38,6 +39,10 @@ module.exports = {
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       openAnalyzer: false,
+    }),
+
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify('benchmark'),
     }),
   ],
   resolve: {

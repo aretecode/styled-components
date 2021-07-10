@@ -5,6 +5,20 @@ function resolveTsConfig() {
 }
 
 const config = {
+  globals: {
+    "__DEV__": true,
+    // "__VERSION__": "4.0.0-beta.1",
+    "__VERSION__": "JEST_MOCK_VERSION",
+  },
+  testURL: "http://localhost",
+  clearMocks: true,
+  roots: [
+    "<rootDir>/src/"
+  ],
+  setupFiles: [
+    "raf/polyfill",
+    "<rootDir>/src/test/globals.ts"
+  ],
   verbose: true,
   setupTestFrameworkScriptFile: require.resolve('./jest/exoticJest.js'),
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}'],
@@ -14,11 +28,11 @@ const config = {
     '<rootDir>/src/**/?(*.)(spec|test).(j|t)s?(x)',
   ],
   testPathIgnorePatterns: [
+    "<rootDir>/src/native",
+    "<rootDir>/src/primitives",
     '<rootDir>/__tests__/deps/*.(j|t)s?(x)',
     '<rootDir>/__tests__/fixtures/*.(j|t)s?(x)',
   ],
-  testURL: 'http://localhost/',
-  // testEnvironment: 'node',
   transform: {
     '^.+\\.tsx?$': require.resolve('./jest/typescriptTransform.js'),
     '^(?!.*\\.(js|jsx|mjs|css|json)$)': require.resolve('./jest/fileTransform.js'),
